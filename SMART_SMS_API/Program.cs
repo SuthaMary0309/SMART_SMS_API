@@ -3,7 +3,7 @@ using RepositoryLayer;
 using RepositoryLayer.AppDbContext;
 using ServiceLayer;
 var builder = WebApplication.CreateBuilder(args);
-
+// Hii Disa
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 // Add services to the container.
@@ -32,4 +32,4 @@ app.MapControllers();
 
 app.Run();
 
-//hello
+//helo
