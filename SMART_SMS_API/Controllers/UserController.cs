@@ -1,20 +1,34 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ServiceLayer.DTO.RequestDTO;
 using ServiceLayer.ServiceInterFace;
 using System;
 using System.Threading.Tasks;
 
 namespace SmartSMS.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/user")]
     [ApiController]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
-
         public UserController(IUserService userService)
         {
             _userService = userService;
+        }
+
+        // 🟣 Add new user (parameters-based)
+        [HttpPost("add")]
+        public async Task<IActionResult> AddUser(string userName, int age, string email, string role)
+        {
+            var userDto = new ServiceLayer.DTO.RequestDTO.UserRequestDTO
+            {
+                UserName = userName,
+                Age = age,
+                Email = email,
+                Role = role
+            };
+
+            var user = await _userService.AddUserAsync(userDto);
+            return Ok(user);
         }
 
         // 🟢 Get all users
@@ -36,37 +50,31 @@ namespace SmartSMS.Controllers
             return Ok(user);
         }
 
-        // 🟣 Add new user
-        [HttpPost("add")]
-        public async Task<IActionResult> AddUser([FromBody] UserRequestDTO request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var addedUser = await _userService.AddUserAsync(request);
-            return CreatedAtAction(nameof(GetUserById), new { id = addedUser.Id }, addedUser);
-        }
-
-        // 🔵 Update user
+        // 🔵 Update user (parameters-based)
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UserRequestDTO request)
+        public async Task<IActionResult> UpdateUser(Guid id, string userName, int age, string email, string role)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            var userDto = new ServiceLayer.DTO.RequestDTO.UserRequestDTO
+            {
+                UserName = userName,
+                Age = age,
+                Email = email,
+                Role = role
+            };
 
-            var updatedUser = await _userService.UpdateUserAsync(id, request);
-            if (updatedUser == null)
+            var updated = await _userService.UpdateUserAsync(id, userDto);
+            if (updated == null)
                 return NotFound(new { message = "User not found" });
 
-            return Ok(updatedUser);
+            return Ok(updated);
         }
 
         // 🔴 Delete user
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteUser(Guid id)
         {
-            var result = await _userService.DeleteUserAsync(id);
-            if (!result)
+            var deleted = await _userService.DeleteUserAsync(id);
+            if (!deleted)
                 return NotFound(new { message = "User not found or already deleted" });
 
             return Ok(new { message = "User deleted successfully" });

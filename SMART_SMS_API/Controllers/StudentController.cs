@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SMART_SMS_API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/student")]
     [ApiController]
     public class StudentController : ControllerBase
     {
@@ -36,27 +36,41 @@ namespace SMART_SMS_API.Controllers
             return Ok(student);
         }
 
-        // 🟣 Add new student
+        // 🟣 Add new student (parameters-based)
         [HttpPost("add")]
-        public async Task<IActionResult> AddStudent([FromBody] StudentRequestDTO request)
+        public async Task<IActionResult> AddStudent(string studentName, int phoneNo, string address, string email, Guid userID, Guid classID)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            var studentDto = new StudentRequestDTO
+            {
+                StudentName = studentName,
+                PhoneNo = phoneNo,
+                Address = address,
+                Email = email,
+                UserID = userID,
+                ClassID = classID
+            };
 
-            var added = await _studentService.AddStudentAsync(request);
-            return CreatedAtAction(nameof(GetStudentById), new { id = added.StudentID }, added);
+            var added = await _studentService.AddStudentAsync(studentDto);
+            return Ok(added);
         }
 
-        // 🔵 Update student
+        // 🔵 Update student (parameters-based)
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateStudent(Guid id, [FromBody] StudentRequestDTO request)
+        public async Task<IActionResult> UpdateStudent(Guid id, string studentName, int phoneNo, string address, string email, Guid userID, Guid classID)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            var studentDto = new StudentRequestDTO
+            {
+                StudentName = studentName,
+                PhoneNo = phoneNo,
+                Address = address,
+                Email = email,
+                UserID = userID,
+                ClassID = classID
+            };
 
-            var updated = await _studentService.UpdateStudentAsync(id, request);
+            var updated = await _studentService.UpdateStudentAsync(id, studentDto);
             if (updated == null)
-                return NotFound(new { message = "Student not found" });
+                return NotFound(new { message = "Student not found to update" });
 
             return Ok(updated);
         }
