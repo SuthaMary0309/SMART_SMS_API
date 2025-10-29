@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SmartSMS.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/teacher")]
     [ApiController]
     public class TeacherController : ControllerBase
     {
@@ -15,6 +15,23 @@ namespace SmartSMS.Controllers
         public TeacherController(ITeacherService teacherService)
         {
             _teacherService = teacherService;
+        }
+
+        // 🟣 Add new teacher (parameters-based)
+        [HttpPost("add")]
+        public async Task<IActionResult> AddTeacher(string teacherName, string phoneNo, string address, string email, Guid userID)
+        {
+            var teacherDto = new TeacherRequestDTO
+            {
+                TeacherName = teacherName,
+                PhoneNo = phoneNo,
+                Address = address,
+                Email = email,
+                UserID = userID
+            };
+
+            var newTeacher = await _teacherService.AddTeacherAsync(teacherDto);
+            return Ok(newTeacher);
         }
 
         // 🟢 Get all teachers
@@ -36,22 +53,20 @@ namespace SmartSMS.Controllers
             return Ok(teacher);
         }
 
-        // 🟣 Add teacher
-        [HttpPost("add")]
-        public async Task<IActionResult> AddTeacher([FromBody] TeacherRequestDTO request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var newTeacher = await _teacherService.AddTeacherAsync(request);
-            return CreatedAtAction(nameof(GetTeacherById), new { id = newTeacher.TeacherID }, newTeacher);
-        }
-
-        // 🔵 Update teacher
+        // 🔵 Update teacher (parameters-based)
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateTeacher(Guid id, [FromBody] TeacherRequestDTO request)
+        public async Task<IActionResult> UpdateTeacher(Guid id, string teacherName, string phoneNo, string address, string email, Guid userID)
         {
-            var updated = await _teacherService.UpdateTeacherAsync(id, request);
+            var teacherDto = new TeacherRequestDTO
+            {
+                TeacherName = teacherName,
+                PhoneNo = phoneNo,
+                Address = address,
+                Email = email,
+                UserID = userID
+            };
+
+            var updated = await _teacherService.UpdateTeacherAsync(id, teacherDto);
             if (updated == null)
                 return NotFound(new { message = "Teacher not found to update" });
 
