@@ -7,13 +7,21 @@ using System.Threading.Tasks;
 
 namespace ServiceLayer.DTO.RequestDTO
 {
-    internal class UserRequestDTO
+    public class UserRequestDTO
     {
         [Required]
-        [StringLength(50)]
+        [StringLength(50, MinimumLength = 3)]
         public string UserName { get; set; } = string.Empty;
 
-        [Range(5, 100, ErrorMessage = "Age must be between 5 and 100")]
+        [Range(13, 120)]
         public int Age { get; set; }
+
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(20)]
+        public string Role { get; set; } = "User";
     }
 }
