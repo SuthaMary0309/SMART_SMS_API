@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ServiceLayer.DTO.RequestDTO
+namespace ServiceLayer.Service
 {
-    internal class UserResponseDTO
+    internal class ParentService
     {
     }
 }
