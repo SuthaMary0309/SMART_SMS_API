@@ -8,7 +8,11 @@ namespace ServiceLayer.DTO.ResponseDTO
 {
     public class UserResponseDTO
     {
-        public string Name { get; set; }
+        public Guid Id { get; set; }
+        public string UserName { get; set; } = string.Empty;
         public int Age { get; set; }
+        public string Email { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; }
     }
 }
