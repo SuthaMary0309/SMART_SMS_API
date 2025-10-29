@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SmartSMS.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/subject")]
     [ApiController]
     public class SubjectController : ControllerBase
     {
@@ -36,27 +36,39 @@ namespace SmartSMS.Controllers
             return Ok(subject);
         }
 
-        // 🟣 Add new subject
+        // 🟣 Add new subject (parameters-based)
         [HttpPost("add")]
-        public async Task<IActionResult> AddSubject([FromBody] SubjectRequestDTO request)
+        public async Task<IActionResult> AddSubject(string subjectName, Guid studentID, Guid classID, Guid userID, Guid teacherID)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            var subjectDto = new SubjectRequestDTO
+            {
+                SubjectName = subjectName,
+                StudentID = studentID,
+                ClassID = classID,
+                UserID = userID,
+                TeacherID = teacherID
+            };
 
-            var added = await _subjectService.AddSubjectAsync(request);
-            return CreatedAtAction(nameof(GetSubjectById), new { id = added.SubjectID }, added);
+            var added = await _subjectService.AddSubjectAsync(subjectDto);
+            return Ok(added);
         }
 
-        // 🔵 Update subject
+        // 🔵 Update subject (parameters-based)
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateSubject(Guid id, [FromBody] SubjectRequestDTO request)
+        public async Task<IActionResult> UpdateSubject(Guid id, string subjectName, Guid studentID, Guid classID, Guid userID, Guid teacherID)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            var subjectDto = new SubjectRequestDTO
+            {
+                SubjectName = subjectName,
+                StudentID = studentID,
+                ClassID = classID,
+                UserID = userID,
+                TeacherID = teacherID
+            };
 
-            var updated = await _subjectService.UpdateSubjectAsync(id, request);
+            var updated = await _subjectService.UpdateSubjectAsync(id, subjectDto);
             if (updated == null)
-                return NotFound(new { message = "Subject not found" });
+                return NotFound(new { message = "Subject not found to update" });
 
             return Ok(updated);
         }
