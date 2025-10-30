@@ -1,4 +1,6 @@
-﻿using System;
+﻿using RepositoryLayer.Entity;
+using ServiceLayer.DTO.RequestDTO;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +8,12 @@ using System.Threading.Tasks;
 
 namespace ServiceLayer.ServiceInterFace
 {
-    internal interface IParentService
+    public interface IParentService
     {
+        Task<IEnumerable<Parent>> GetAllParentsAsync();
+        Task<Parent?> GetParentByIdAsync(Guid id);
+        Task<Parent> AddParentAsync(ParentRequestDTO request);
+        Task<User?> UpdateParentAsync(Guid id, ParentRequestDTO request);
+        Task<bool> DeleteParentAsync(Guid id);
     }
 }

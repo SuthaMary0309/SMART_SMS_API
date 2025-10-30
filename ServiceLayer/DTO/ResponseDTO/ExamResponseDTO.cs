@@ -6,7 +6,12 @@ using System.Threading.Tasks;
 
 namespace ServiceLayer.DTO.ResponseDTO
 {
-    internal class ExamResponseDTO
+    public class ExamResponseDTO
     {
+        public Guid ExamID { get; set; }
+        public Guid ClassID { get; set; }
+        public Guid SubjectID { get; set; }
+        public string ExamName { get; set; }
+        public DateTime ExamDate { get; set; }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using RepositoryLayer.Entity;
-using RepositoryLayer.RepoInterFace;
+using RepositoryLayer.Repository;
 using ServiceLayer.DTO.RequestDTO;
 using ServiceLayer.ServiceInterFace;
 using System;

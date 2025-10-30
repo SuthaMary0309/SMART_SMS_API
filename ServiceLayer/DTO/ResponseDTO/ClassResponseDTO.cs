@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace ServiceLayer.DTO.ResponseDTO
 {
-    internal class ClassResponseDTO
+    public class ClassResponseDTO
     {
+        public Guid ClassId { get; set; }
+        public string ClassName { get; set; } = string.Empty;
+        public string Grade { get; set; }
     }
 }

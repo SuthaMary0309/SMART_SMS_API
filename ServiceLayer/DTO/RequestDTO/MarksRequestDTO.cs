@@ -6,7 +6,12 @@ using System.Threading.Tasks;
 
 namespace ServiceLayer.DTO.RequestDTO
 {
-    internal class MarksRequestDTO
+    public class MarksRequestDTO
     {
+        public Guid MarksId { get; set; } = Guid.Empty;
+        public int Grade { get; set; }
+        public int Mark { get; set; }
+        public Guid StudentID { get; set; } = Guid.Empty;
+        public Guid ExamID { get; set; } = Guid.Empty;
     }
 }
