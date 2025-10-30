@@ -20,6 +20,12 @@ namespace RepositoryLayer.AppDbContext
         public DbSet<Student> Students { get; set; }
         public DbSet<Subject> Subjects { get; set; }
         public DbSet<Teacher> Teachers { get; set; }
+        public DbSet<TeacherClass> Teacherclasses { get; set; }
+        public DbSet<TeacherSubject> TeacherSubjects { get; set; }
+        public DbSet<StudentExam> StudentExams { get; set; }
+        public DbSet<StudentMarks> StudentMark { get; set; }
+        public DbSet<StudentSubject> StudentSubjects { get; set; }
+        public DbSet<StudentTeacher> StudentTeachers { get; set; }
 
     }
 

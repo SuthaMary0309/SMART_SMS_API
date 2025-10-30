@@ -1,24 +1,17 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace RepositoryLayer.Entity
+namespace ServiceLayer.DTO.RequestDTO
 {
-    public class Teacher
+    public class TeacherRequestDTO
     {
-        [Key]
-        public Guid TeacherID { get; set; } = Guid.NewGuid();
-
         [Required]
-        [StringLength(100, MinimumLength = 3)]
         public string TeacherName { get; set; } = string.Empty;
 
         [Required]
-        [Phone]
-        [StringLength(15)]
         public string PhoneNo { get; set; } = string.Empty;
 
         [Required]
-        [StringLength(255)]
         public string Address { get; set; } = string.Empty;
 
         [Required]
@@ -26,6 +19,6 @@ namespace RepositoryLayer.Entity
         public string Email { get; set; } = string.Empty;
 
         [Required]
-        public Guid UserID { get; set; } = Guid.Empty;
+        public Guid UserID { get; set; }
     }
 }
