@@ -3,7 +3,7 @@ using ServiceLayer.ServiceInterFace;
 using System;
 using System.Threading.Tasks;
 
-namespace SmartSMS.Controllers
+namespace SMART_SMS_API.Controllers
 {
     [Route("api/user")]
     [ApiController]
