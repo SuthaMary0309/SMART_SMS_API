@@ -1,6 +1,10 @@
 ﻿using RepositoryLayer.Entity;
 using RepositoryLayer.RepoInterFace;
+using ServiceLayer.DTO.RequestDTO;
 using ServiceLayer.ServiceInterFace;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ServiceLayer.Service
 {
@@ -12,16 +16,52 @@ namespace ServiceLayer.Service
             _userRepository = userRepository;
         }
 
-        public async Task<User> AddUserAsync(string name, int age)
+        // 🟣 Add new user
+        public async Task<User> AddUserAsync(UserRequestDTO request)
         {
-            var userdto = new User
+            var user = new User
             {
                 Id = Guid.NewGuid(),
-                UserName = name,
-                Age = age
+                UserName = request.UserName,
+                Age = request.Age,
+                Email = request.Email,
+                Role = request.Role,
+                CreatedAt = DateTime.UtcNow
             };
-            var addUser = await _userRepository.AddUser(userdto);
-            return addUser;
+
+            return await _userRepository.AddUser(user);
+        }
+
+        // 🟢 Get all users
+        public async Task<IEnumerable<User>> GetAllUsersAsync()
+        {
+            return await _userRepository.GetAllUsers();
+        }
+
+        // 🟡 Get user by ID
+        public async Task<User?> GetUserByIdAsync(Guid id)
+        {
+            return await _userRepository.GetUserById(id);
+        }
+
+        // 🔵 Update user
+        public async Task<User?> UpdateUserAsync(Guid id, UserRequestDTO request)
+        {
+            var existing = await _userRepository.GetUserById(id);
+            if (existing == null) return null;
+
+            existing.UserName = request.UserName;
+            existing.Age = request.Age;
+            existing.Email = request.Email;
+            existing.Role = request.Role;
+
+            return await _userRepository.UpdateUser(existing);
+        }
+
+        // 🔴 Delete user
+        public async Task<bool> DeleteUserAsync(Guid id)
+        {
+            return await _userRepository.DeleteUser(id);
         }
     }
 }
