@@ -35,11 +35,10 @@ namespace RepositoryLayer.Repository
 
         public async Task<User?> UpdateUser(User user)
         {
-            var existing = await _dbContext.Users.FindAsync(user.Id);
+            var existing = await _dbContext.Users.FindAsync(user.UserID);
             if (existing == null) return null;
 
             existing.UserName = user.UserName;
-            existing.Age = user.Age;
             existing.Email = user.Email;
             existing.Role = user.Role;
 

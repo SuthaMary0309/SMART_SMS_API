@@ -46,7 +46,6 @@ namespace SMART_SMS_API.Controllers
                 PhoneNo = phoneNo,
                 Address = address,
                 Email = email,
-                UserID = userID,
                 ClassID = classID
             };
 
@@ -64,7 +63,6 @@ namespace SMART_SMS_API.Controllers
                 PhoneNo = phoneNo,
                 Address = address,
                 Email = email,
-                UserID = userID,
                 ClassID = classID
             };
 
