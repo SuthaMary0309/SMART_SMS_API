@@ -36,7 +36,6 @@ namespace ServiceLayer.Service
                 PhoneNo = request.PhoneNo,
                 Address = request.Address,
                 Email = request.Email,
-                UserID = request.UserID,
                 ClassID = request.ClassID
             };
 
@@ -52,7 +51,6 @@ namespace ServiceLayer.Service
             existing.PhoneNo = request.PhoneNo;
             existing.Address = request.Address;
             existing.Email = request.Email;
-            existing.UserID = request.UserID;
             existing.ClassID = request.ClassID;
 
             return await _studentRepository.UpdateStudent(existing);

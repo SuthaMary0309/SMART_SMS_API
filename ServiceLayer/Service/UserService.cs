@@ -21,9 +21,8 @@ namespace ServiceLayer.Service
         {
             var user = new User
             {
-                Id = Guid.NewGuid(),
+                UserID = Guid.NewGuid(),
                 UserName = request.UserName,
-                Age = request.Age,
                 Email = request.Email,
                 Role = request.Role,
                 CreatedAt = DateTime.UtcNow
@@ -51,7 +50,6 @@ namespace ServiceLayer.Service
             if (existing == null) return null;
 
             existing.UserName = request.UserName;
-            existing.Age = request.Age;
             existing.Email = request.Email;
             existing.Role = request.Role;
 
