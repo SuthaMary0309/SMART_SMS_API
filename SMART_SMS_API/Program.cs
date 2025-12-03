@@ -53,6 +53,9 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod());
 });
 
+builder.Services.AddScoped<IEmailService, EmailService>();
+
+
 builder.Services.AddControllers();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 
