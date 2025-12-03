@@ -9,7 +9,12 @@ namespace RepositoryLayer.AppDbContext
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
-
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<User>().Property(u => u.PasswordHash).HasColumnType("varbinary(max)");
+            modelBuilder.Entity<User>().Property(u => u.PasswordSalt).HasColumnType("varbinary(max)");
+            base.OnModelCreating(modelBuilder);
+        }
         public DbSet<User> Users { get; set; }
         public DbSet<Attendance> Attendances { get; set; }
         public DbSet<Class> Classes { get; set; }

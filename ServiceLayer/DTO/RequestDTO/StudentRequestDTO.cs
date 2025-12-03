@@ -6,24 +6,19 @@ namespace ServiceLayer.DTO.RequestDTO
     public class StudentRequestDTO
     {
         [Required]
-        [StringLength(100, MinimumLength = 2)]
-        public string StudentName { get; set; } = string.Empty;
+        public string StudentName { get; set; }
 
         [Required]
-        [Phone]
-        public int PhoneNo { get; set; }
-
-        [Required]
-        public string Address { get; set; } = string.Empty;
+        public string Address { get; set; }
 
         [Required]
         [EmailAddress]
-        public string Email { get; set; } = string.Empty;
+        public string Email { get; set; }
 
         [Required]
-        public Guid UserID { get; set; }
+        public int PhoneNo { get; set; }
 
-        [Required]
         public Guid ClassID { get; set; }
+
     }
 }
