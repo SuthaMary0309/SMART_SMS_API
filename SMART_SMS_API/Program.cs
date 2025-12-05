@@ -1,23 +1,71 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using RepositoryLayer;
 using RepositoryLayer.AppDbContext;
+using RepositoryLayer.RepoInterFace;
+using RepositoryLayer.Repository;
+using RepositoryLayer.RepositoryInterface;
 using ServiceLayer;
+using ServiceLayer.Service;
+using ServiceLayer.ServiceInterFace;
+using System.Text;
+
 var builder = WebApplication.CreateBuilder(args);
-// Hii Disa
+
+// DB
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-// Add services to the container.
+
+// DI Layers  
 builder.Services.AddRepositoryLayer(builder.Configuration);
 builder.Services.AddServiceLayer();
+builder.Services.AddScoped<IJwtService, JwtTokenService>();
+
+// JWT Authentication
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateIssuerSigningKey = true,
+        ValidateLifetime = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(key)
+    };
+});
+
+// CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
+
+builder.Services.AddScoped<IEmailService, EmailService>();
+ 
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -26,10 +74,16 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// MIDDLEWARE ORDER IMPORTANT
+app.UseCors("AllowAll");
+app.UseAuthentication();
 app.UseAuthorization();
+// NEW ROLE BASED AUTHONTICATION
+//builder.Services.AddAuthorization(options =>
+//    options.AddPolicy("TeacherOrAdmin", policy => policy.RequireRole("Teacher", "Admin"));
+//});
+
 
 app.MapControllers();
 
 app.Run();
-
-//helo
