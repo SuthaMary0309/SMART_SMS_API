@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RepositoryLayer.AppDbContext;
 using RepositoryLayer.Entity;
+using RepositoryLayer.RepositoryInterface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace RepositoryLayer.Repository
 {
-    public class ClassRepository
+    public class ClassRepository : IClassRepository
     {
         private readonly ApplicationDbContext _dbContext;
 
@@ -42,7 +43,6 @@ namespace RepositoryLayer.Repository
 
             existing.ClassName = @class.ClassName;
             existing.Grade = @class.Grade;
-            
 
             await _dbContext.SaveChangesAsync();
             return existing;
@@ -58,6 +58,7 @@ namespace RepositoryLayer.Repository
             return true;
         }
     }
+
 }
-    
+
 

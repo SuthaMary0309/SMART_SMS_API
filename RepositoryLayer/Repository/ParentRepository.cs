@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RepositoryLayer.AppDbContext;
 using RepositoryLayer.Entity;
+using RepositoryLayer.RepositoryInterface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace RepositoryLayer.Repository
 {
-    public class ParentRepository
+    public class ParentRepository :IParentRepository
     {
         private readonly ApplicationDbContext _dbContext;
 
@@ -59,6 +60,11 @@ namespace RepositoryLayer.Repository
             _dbContext.Parents.Remove(existing);
             await _dbContext.SaveChangesAsync();
             return true;
+        }
+
+        public Task<Parent?> UpdateParent(Parent parent)
+        {
+            throw new NotImplementedException();
         }
     }
 }

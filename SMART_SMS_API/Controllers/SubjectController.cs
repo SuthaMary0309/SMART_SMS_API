@@ -38,40 +38,28 @@ namespace SmartSMS.Controllers
 
         // 🟣 Add new subject (parameters-based)
         [HttpPost("add")]
-        public async Task<IActionResult> AddSubject(string subjectName, Guid studentID, Guid classID, Guid userID, Guid teacherID)
+        public async Task<IActionResult> AddSubject([FromBody] SubjectRequestDTO request)
         {
-            var subjectDto = new SubjectRequestDTO
-            {
-                SubjectName = subjectName,
-                StudentID = studentID,
-                ClassID = classID,
-                UserID = userID,
-                TeacherID = teacherID
-            };
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            var added = await _subjectService.AddSubjectAsync(subjectDto);
-            return Ok(added);
+            var created = await _subjectService.AddSubjectAsync(request);
+            return Ok(created);
         }
+
 
         // 🔵 Update subject (parameters-based)
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateSubject(Guid id, string subjectName, Guid studentID, Guid classID, Guid userID, Guid teacherID)
+        public async Task<IActionResult> UpdateSubject(Guid id, [FromBody] SubjectRequestDTO request)
         {
-            var subjectDto = new SubjectRequestDTO
-            {
-                SubjectName = subjectName,
-                StudentID = studentID,
-                ClassID = classID,
-                UserID = userID,
-                TeacherID = teacherID
-            };
+            var updated = await _subjectService.UpdateSubjectAsync(id, request);
 
-            var updated = await _subjectService.UpdateSubjectAsync(id, subjectDto);
             if (updated == null)
-                return NotFound(new { message = "Subject not found to update" });
+                return NotFound(new { message = "Subject not found" });
 
             return Ok(updated);
         }
+
 
         // 🔴 Delete subject
         [HttpDelete("delete/{id}")]

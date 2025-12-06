@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RepositoryLayer.AppDbContext;
 using RepositoryLayer.Entity;
+using RepositoryLayer.RepositoryInterface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace RepositoryLayer.Repository
 {
-    public class NotificationRepository
+    public class NotificationRepository :INotificationRepository
     {
         private readonly ApplicationDbContext _dbContext;
 
@@ -61,6 +62,11 @@ namespace RepositoryLayer.Repository
             _dbContext.Notifications.Remove(existing);
             await _dbContext.SaveChangesAsync();
             return true;
+        }
+
+        public Task<bool> DeleteNotication(Guid id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

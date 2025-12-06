@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RepositoryLayer.AppDbContext;
 using RepositoryLayer.Entity;
+using RepositoryLayer.RepoInterFace;
 using RepositoryLayer.Repository;
 using System;
 using System.Collections.Generic;
