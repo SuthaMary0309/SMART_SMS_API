@@ -71,10 +71,7 @@ namespace ServiceLayer.Service
             return await _parentRepository.DeleteParent(id);
         }
 
-        Task<User?> IParentService.UpdateParentAsync(Guid id, ParentRequestDTO request)
-        {
-            throw new NotImplementedException();
-        }
+      
     }
 }
 

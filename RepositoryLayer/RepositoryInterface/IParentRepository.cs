@@ -13,6 +13,7 @@ namespace RepositoryLayer.RepositoryInterface
         Task<IEnumerable<Parent>> GetAllParents();
         Task<Parent?> GetParentById(Guid id);
         Task<Parent?> UpdateParent(Parent parent);
+
         Task<bool> DeleteParent(Guid id);
     }
 }

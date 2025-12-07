@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using RepositoryLayer.Entity;
+using ServiceLayer.DTO.RequestDTO;
 using ServiceLayer.ServiceInterFace;
 using System;
 using System.Threading.Tasks;
@@ -18,19 +20,14 @@ namespace SMART_SMS_API.Controllers
 
         // 🟣 Add new Parent (parameters-based)
         [HttpPost("add")]
-        public async Task<IActionResult> AddParent(string parentName, int phoneNo, string address, string email, Guid studentID, Guid userID)
+        public async Task<IActionResult> AddParent([FromBody] ParentRequestDTO request)
         {
-            var parentDto = new ServiceLayer.DTO.RequestDTO.ParentRequestDTO
-            {
-                ParentName = parentName,
-                PhoneNo = phoneNo,
-                Address = address,
-                Email = email,
-                StudentID = studentID,
-                UserID = userID,
-            };
+            var parent = await _parentService.AddParentAsync(request);
+            
+                parent.UserID = Guid.NewGuid(); // assign default UserID
+                                                // save parent
+            
 
-            var parent = await _parentService.AddParentAsync(parentDto);
             return Ok(parent);
         }
 
@@ -55,19 +52,9 @@ namespace SMART_SMS_API.Controllers
 
         // 🔵 Update Parent (parameters-based)
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateParent(Guid id, string parentName, int phoneNo, string address, string email, Guid studentID, Guid userID)
+        public async Task<IActionResult> UpdateParent(Guid id, [FromBody] ParentRequestDTO request)
         {
-            var parentDto = new ServiceLayer.DTO.RequestDTO.ParentRequestDTO
-            {
-                ParentName = parentName,
-                PhoneNo = phoneNo,
-                Address = address,
-                Email = email,
-                StudentID = studentID,
-                UserID = userID
-            };
-
-            var updated = await _parentService.UpdateParentAsync(id, parentDto);
+            var updated = await _parentService.UpdateParentAsync(id, request);
             if (updated == null)
                 return NotFound(new { message = "Parent not found" });
 

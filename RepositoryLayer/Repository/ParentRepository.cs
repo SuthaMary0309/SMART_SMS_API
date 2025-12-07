@@ -36,7 +36,7 @@ namespace RepositoryLayer.Repository
             return await _dbContext.Parents.FindAsync(id);
         }
 
-        public async Task<Parent?> UpdateStudent(Parent parent)
+        public async Task<Parent?> UpdateParent(Parent parent)
         {
             var existing = await _dbContext.Parents.FindAsync(parent.ParentID);
             if (existing == null) return null;
@@ -45,8 +45,8 @@ namespace RepositoryLayer.Repository
             existing.PhoneNo = parent.PhoneNo;
             existing.Address = parent.Address;
             existing.Email = parent.Email;
-            existing.UserID = parent.UserID;
             existing.StudentID = parent.StudentID;
+            existing.UserID = parent.UserID;
 
             await _dbContext.SaveChangesAsync();
             return existing;
@@ -62,10 +62,7 @@ namespace RepositoryLayer.Repository
             return true;
         }
 
-        public Task<Parent?> UpdateParent(Parent parent)
-        {
-            throw new NotImplementedException();
-        }
+       
     }
 }
     

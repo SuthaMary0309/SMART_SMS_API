@@ -23,6 +23,9 @@ builder.Services.AddServiceLayer();
 builder.Services.AddScoped<IJwtService, JwtTokenService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
+// Program.cs (Add)
+builder.Services.AddScoped<IReportService, ReportService>();
+// ensure DbContext registered already, CORS etc.
 
 // JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");
