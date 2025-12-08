@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ServiceLayer.DTO.RequestDTO;
 using ServiceLayer.ServiceInterFace;
 using System;
 using System.Threading.Tasks;
@@ -18,19 +19,12 @@ namespace SMART_SMS_API.Controllers
 
         // 🟣 Add new Exam (parameters-based)
         [HttpPost("add")]
-        public async Task<IActionResult> AddExam(Guid classID, Guid subjectID, string examName, DateTime examDate)
+        public async Task<IActionResult> AddExam([FromBody] ExamRequestDTO dto)
         {
-            var examDto = new ServiceLayer.DTO.RequestDTO.ExamRequestDTO
-            {
-                ClassID = classID,
-                SubjectID = subjectID,
-                ExamName = examName,
-                ExamDate = examDate
-            };
-
-            var exam = await _examService.AddExamAsync(examDto);
-            return Ok(exam);
+            var result = await _examService.AddExamAsync(dto);
+            return Ok(result);
         }
+
 
         // 🟢 Get all Exams
         [HttpGet("get-all")]
@@ -53,22 +47,12 @@ namespace SMART_SMS_API.Controllers
 
         // 🔵 Update Exam (parameters-based)
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateExam(Guid id, Guid classID, Guid subjectID, string examName, DateTime examDate)
+        public async Task<IActionResult> UpdateExam(Guid id, [FromBody] ExamRequestDTO dto)
         {
-            var examDto = new ServiceLayer.DTO.RequestDTO.ExamRequestDTO
-            {
-                ClassID = classID,
-                SubjectID = subjectID,
-                ExamName = examName,
-                ExamDate = examDate
-            };
-
-            var updated = await _examService.UpdateExamAsync(id, examDto);
-            if (updated == null)
-                return NotFound(new { message = "Exam not found" });
-
-            return Ok(updated);
+            var result = await _examService.UpdateExamAsync(id, dto);
+            return Ok(result);
         }
+
 
         // 🔴 Delete Exam
         [HttpDelete("delete/{id}")]

@@ -3,6 +3,7 @@ using RepositoryLayer.RepoInterFace;
 using RepositoryLayer.Repository;
 using RepositoryLayer.RepositoryInterface;
 using ServiceLayer.DTO.RequestDTO;
+using ServiceLayer.ServiceInterFace;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace ServiceLayer.Service
 {
-    public class NotificationService
+    public class NotificationService :INotificationService
     {
         private readonly INotificationRepository _notificationRepository;
         public NotificationService(INotificationRepository notificationRepository)
