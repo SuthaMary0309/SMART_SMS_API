@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RepositoryLayer.AppDbContext;
 using RepositoryLayer.Entity;
+using RepositoryLayer.RepositoryInterface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace RepositoryLayer.Repository
 {
-    public class ParentRepository
+    public class ParentRepository :IParentRepository
     {
         private readonly ApplicationDbContext _dbContext;
 
@@ -35,7 +36,7 @@ namespace RepositoryLayer.Repository
             return await _dbContext.Parents.FindAsync(id);
         }
 
-        public async Task<Parent?> UpdateStudent(Parent parent)
+        public async Task<Parent?> UpdateParent(Parent parent)
         {
             var existing = await _dbContext.Parents.FindAsync(parent.ParentID);
             if (existing == null) return null;
@@ -44,8 +45,8 @@ namespace RepositoryLayer.Repository
             existing.PhoneNo = parent.PhoneNo;
             existing.Address = parent.Address;
             existing.Email = parent.Email;
-            existing.UserID = parent.UserID;
             existing.StudentID = parent.StudentID;
+            existing.UserID = parent.UserID;
 
             await _dbContext.SaveChangesAsync();
             return existing;
@@ -60,6 +61,8 @@ namespace RepositoryLayer.Repository
             await _dbContext.SaveChangesAsync();
             return true;
         }
+
+       
     }
 }
     

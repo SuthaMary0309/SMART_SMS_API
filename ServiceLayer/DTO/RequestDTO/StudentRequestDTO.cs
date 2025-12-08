@@ -9,6 +9,9 @@ namespace ServiceLayer.DTO.RequestDTO
         public string StudentName { get; set; }
 
         [Required]
+        public string PhoneNo { get; set; }
+
+        [Required]
         public string Address { get; set; }
 
         [Required]
@@ -16,9 +19,6 @@ namespace ServiceLayer.DTO.RequestDTO
         public string Email { get; set; }
 
         [Required]
-        public int PhoneNo { get; set; }
-
         public Guid ClassID { get; set; }
-
     }
 }

@@ -3,6 +3,7 @@ using RepositoryLayer.RepoInterFace;
 using RepositoryLayer.Repository;
 using RepositoryLayer.RepositoryInterface;
 using ServiceLayer.DTO.RequestDTO;
+using ServiceLayer.ServiceInterFace;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace ServiceLayer.Service
 {
-    public class ParentService
+    public class ParentService :IParentService
     {
         private readonly IParentRepository _parentRepository;
         public ParentService(IParentRepository parentRepository)
@@ -69,6 +70,8 @@ namespace ServiceLayer.Service
         {
             return await _parentRepository.DeleteParent(id);
         }
+
+      
     }
 }
 

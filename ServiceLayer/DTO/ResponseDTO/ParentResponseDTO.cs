@@ -10,7 +10,7 @@ namespace ServiceLayer.DTO.ResponseDTO
     {
         public Guid ParentID { get; set; } = Guid.Empty;
         public string ParentName { get; set; } = string.Empty;
-        public int PhoneNo { get; set; }
+        public string PhoneNo { get; set; }
         public string Address { get; set; }
         public string Email { get; set; }
         public Guid UserID { get; set; } = Guid.Empty;

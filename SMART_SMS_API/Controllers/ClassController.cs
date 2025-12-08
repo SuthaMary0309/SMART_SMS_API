@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ServiceLayer.DTO.RequestDTO;
 using ServiceLayer.ServiceInterFace;
 using System;
 using System.Threading.Tasks;
@@ -17,18 +18,14 @@ namespace SMART_SMS_API.Controllers
         }
 
         // 🟣 Add new Class (parameters-based)
+       
         [HttpPost("add")]
-        public async Task<IActionResult> AddClass(string className, string grade)
+        public async Task<IActionResult> AddClass([FromBody] ClassRequestDTO request)
         {
-            var classDto = new ServiceLayer.DTO.RequestDTO.ClassRequestDTO
-            {
-                ClassName = className,
-                Grade = grade
-            };
-
-            var createdClass = await _classService.AddClassAsync(classDto);
+            var createdClass = await _classService.AddClassAsync(request);
             return Ok(createdClass);
         }
+
 
         // 🟢 Get all Classes
         [HttpGet("get-all")]
@@ -51,20 +48,16 @@ namespace SMART_SMS_API.Controllers
 
         // 🔵 Update Class (parameters-based)
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateClass(Guid id, string className, string grade)
+        public async Task<IActionResult> UpdateClass(Guid id, [FromBody] ClassRequestDTO request)
         {
-            var classDto = new ServiceLayer.DTO.RequestDTO.ClassRequestDTO
-            {
-                ClassName = className,
-                Grade = grade
-            };
-
-            var updated = await _classService.UpdateClassAsync(id, classDto);
+            var updated = await _classService.UpdateClassAsync(id, request);
             if (updated == null)
                 return NotFound(new { message = "Class not found" });
 
             return Ok(updated);
         }
+
+
 
         // 🔴 Delete Class
         [HttpDelete("delete/{id}")]
