@@ -10,6 +10,8 @@ namespace RepositoryLayer.RepositoryInterface
     public interface IAuthRepository
     {
         Task<User> Register(User user, string password);
+
+       
         Task<User?> Login(string email, string password);
         // New:
         Task<string> CreatePasswordResetToken(string email); // returns token (or null / throw)

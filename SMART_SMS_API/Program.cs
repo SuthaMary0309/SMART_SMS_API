@@ -13,6 +13,10 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add configuration files BEFORE Build()
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                     .AddEnvironmentVariables();
+
 // DB
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -21,6 +25,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddRepositoryLayer(builder.Configuration);
 builder.Services.AddServiceLayer();
 builder.Services.AddScoped<IJwtService, JwtTokenService>();
+builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
+builder.Services.AddScoped<IReportService, ReportService>();
 
 // JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");
@@ -54,18 +61,38 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod());
 });
 
+// Email
 builder.Services.AddScoped<IEmailService, EmailService>();
- 
 
-builder.Services.AddControllers();
+// Google Sheets
+builder.Services.AddSingleton<GoogleSheetsService>();
+
+// Repositories & Services
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
+builder.Services.AddScoped<ITeacherService, TeacherService>();
+builder.Services.AddScoped<IClassRepository, ClassRepository>();
+builder.Services.AddScoped<IClassService, ClassService>();
+builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
+builder.Services.AddScoped<ISubjectService, SubjectService>();
+builder.Services.AddScoped<IExamRepository, ExamRepository>();
+builder.Services.AddScoped<IExamService, ExamService>();
+builder.Services.AddScoped<IMarksRepository, MarksRepository>();
+builder.Services.AddScoped<IMarksService, MarksService>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IParentRepository, ParentRepository>();
+builder.Services.AddScoped<IParentService, ParentService>();
 
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Build the app
 var app = builder.Build();
 
+// Middleware
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -73,17 +100,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-// MIDDLEWARE ORDER IMPORTANT
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
-// NEW ROLE BASED AUTHONTICATION
-//builder.Services.AddAuthorization(options =>
-//    options.AddPolicy("TeacherOrAdmin", policy => policy.RequireRole("Teacher", "Admin"));
-//});
 
-
+// Map controllers
 app.MapControllers();
 
 app.Run();

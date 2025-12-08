@@ -1,18 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RepositoryLayer.AppDbContext;
 using RepositoryLayer.Entity;
+using RepositoryLayer.RepositoryInterface;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace RepositoryLayer.Repository
 {
-    public class ParentRepository
+    public class ParentRepository : IParentRepository
     {
         private readonly ApplicationDbContext _dbContext;
-
         public ParentRepository(ApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -20,9 +18,9 @@ namespace RepositoryLayer.Repository
 
         public async Task<Parent> AddParent(Parent parent)
         {
-            var result = await _dbContext.Parents.AddAsync(parent);
+            var res = await _dbContext.Parents.AddAsync(parent);
             await _dbContext.SaveChangesAsync();
-            return result.Entity;
+            return res.Entity;
         }
 
         public async Task<IEnumerable<Parent>> GetAllParents()
@@ -35,7 +33,7 @@ namespace RepositoryLayer.Repository
             return await _dbContext.Parents.FindAsync(id);
         }
 
-        public async Task<Parent?> UpdateStudent(Parent parent)
+        public async Task<Parent?> UpdateParent(Parent parent)
         {
             var existing = await _dbContext.Parents.FindAsync(parent.ParentID);
             if (existing == null) return null;
@@ -44,8 +42,8 @@ namespace RepositoryLayer.Repository
             existing.PhoneNo = parent.PhoneNo;
             existing.Address = parent.Address;
             existing.Email = parent.Email;
-            existing.UserID = parent.UserID;
             existing.StudentID = parent.StudentID;
+            existing.UserID = parent.UserID;
 
             await _dbContext.SaveChangesAsync();
             return existing;
@@ -62,5 +60,3 @@ namespace RepositoryLayer.Repository
         }
     }
 }
-    
-

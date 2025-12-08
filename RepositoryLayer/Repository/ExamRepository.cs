@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RepositoryLayer.AppDbContext;
 using RepositoryLayer.Entity;
+using RepositoryLayer.RepositoryInterface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace RepositoryLayer.Repository
 {
-    public class ExamRepository
+    public class ExamRepository :IExamRepository
     {
         private readonly ApplicationDbContext _dbContext;
 

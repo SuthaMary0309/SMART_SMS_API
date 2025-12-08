@@ -1,88 +1,64 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using ServiceLayer.DTO.RequestDTO;
 using ServiceLayer.ServiceInterFace;
 using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace SMART_SMS_API.Controllers
 {
+    [Route("api/parent")]
     [ApiController]
-    [Route("api/[controller]")]
+    [Authorize] // require auth so we can read user id claim
     public class ParentController : ControllerBase
     {
         private readonly IParentService _parentService;
-
         public ParentController(IParentService parentService)
         {
             _parentService = parentService;
         }
 
-        // 🟣 Add new Parent (parameters-based)
-        [HttpPost("add")]
-        public async Task<IActionResult> AddParent(string parentName, int phoneNo, string address, string email, Guid studentID, Guid userID)
-        {
-            var parentDto = new ServiceLayer.DTO.RequestDTO.ParentRequestDTO
-            {
-                ParentName = parentName,
-                PhoneNo = phoneNo,
-                Address = address,
-                Email = email,
-                StudentID = studentID,
-                UserID = userID,
-            };
-
-            var parent = await _parentService.AddParentAsync(parentDto);
-            return Ok(parent);
-        }
-
-        // 🟢 Get all Parents
-        [HttpGet("get-all")]
-        public async Task<IActionResult> GetAllParents()
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAll()
         {
             var parents = await _parentService.GetAllParentsAsync();
             return Ok(parents);
         }
 
-        // 🟡 Get Parent by ID
-        [HttpGet("get/{id}")]
-        public async Task<IActionResult> GetParentById(Guid id)
+        [HttpPost("add")]
+        public async Task<IActionResult> Add([FromBody] ParentRequestDTO dto)
         {
-            var parent = await _parentService.GetParentByIdAsync(id);
-            if (parent == null)
-                return NotFound(new { message = "Parent not found" });
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            return Ok(parent);
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            Guid? userId = null;
+            if (Guid.TryParse(userIdClaim, out var uid)) userId = uid;
+
+            var created = await _parentService.AddParentAsync(dto, userId);
+            return Ok(created);
         }
 
-        // 🔵 Update Parent (parameters-based)
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateParent(Guid id, string parentName, int phoneNo, string address, string email, Guid studentID, Guid userID)
+        public async Task<IActionResult> Update(Guid id, [FromBody] ParentRequestDTO dto)
         {
-            var parentDto = new ServiceLayer.DTO.RequestDTO.ParentRequestDTO
-            {
-                ParentName = parentName,
-                PhoneNo = phoneNo,
-                Address = address,
-                Email = email,
-                StudentID = studentID,
-                UserID = userID
-            };
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var updated = await _parentService.UpdateParentAsync(id, parentDto);
-            if (updated == null)
-                return NotFound(new { message = "Parent not found" });
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            Guid? userId = null;
+            if (Guid.TryParse(userIdClaim, out var uid)) userId = uid;
 
+            var updated = await _parentService.UpdateParentAsync(id, dto, userId);
+            if (updated == null) return NotFound();
             return Ok(updated);
         }
 
-        // 🔴 Delete Parent
         [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> DeleteParent(Guid id)
+        public async Task<IActionResult> Delete(Guid id)
         {
-            var deleted = await _parentService.DeleteParentAsync(id);
-            if (!deleted)
-                return NotFound(new { message = "Parent not found or already deleted" });
-
-            return Ok(new { message = "Parent deleted successfully" });
+            var ok = await _parentService.DeleteParentAsync(id);
+            if (!ok) return NotFound();
+            return NoContent();
         }
     }
 }

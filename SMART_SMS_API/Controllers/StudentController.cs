@@ -17,15 +17,12 @@ namespace SMART_SMS_API.Controllers
             _studentService = studentService;
         }
 
-        // 🟢 Get all students
         [HttpGet("get-all")]
         public async Task<IActionResult> GetAllStudents()
         {
-            var students = await _studentService.GetAllStudentsAsync();
-            return Ok(students);
+            return Ok(await _studentService.GetAllStudentsAsync());
         }
 
-        // 🟡 Get student by ID
         [HttpGet("get/{id}")]
         public async Task<IActionResult> GetStudentById(Guid id)
         {
@@ -36,50 +33,28 @@ namespace SMART_SMS_API.Controllers
             return Ok(student);
         }
 
-        // 🟣 Add new student (parameters-based)
         [HttpPost("add")]
-        public async Task<IActionResult> AddStudent(string studentName, int phoneNo, string address, string email, Guid userID, Guid classID)
+        public async Task<IActionResult> AddStudent([FromBody] StudentRequestDTO request)
         {
-            var studentDto = new StudentRequestDTO
-            {
-                StudentName = studentName,
-                PhoneNo = phoneNo,
-                Address = address,
-                Email = email,
-                ClassID = classID
-            };
-
-            var added = await _studentService.AddStudentAsync(studentDto);
-            return Ok(added);
+            return Ok(await _studentService.AddStudentAsync(request));
         }
 
-        // 🔵 Update student (parameters-based)
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateStudent(Guid id, string studentName, int phoneNo, string address, string email, Guid userID, Guid classID)
+        public async Task<IActionResult> UpdateStudent(Guid id, [FromBody] StudentRequestDTO request)
         {
-            var studentDto = new StudentRequestDTO
-            {
-                StudentName = studentName,
-                PhoneNo = phoneNo,
-                Address = address,
-                Email = email,
-                ClassID = classID
-            };
-
-            var updated = await _studentService.UpdateStudentAsync(id, studentDto);
+            var updated = await _studentService.UpdateStudentAsync(id, request);
             if (updated == null)
-                return NotFound(new { message = "Student not found to update" });
+                return NotFound(new { message = "Student not found" });
 
             return Ok(updated);
         }
 
-        // 🔴 Delete student
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteStudent(Guid id)
         {
-            var result = await _studentService.DeleteStudentAsync(id);
-            if (!result)
-                return NotFound(new { message = "Student not found or already deleted" });
+            var deleted = await _studentService.DeleteStudentAsync(id);
+            if (!deleted)
+                return NotFound(new { message = "Not found" });
 
             return Ok(new { message = "Student deleted successfully" });
         }

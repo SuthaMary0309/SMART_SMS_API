@@ -43,7 +43,6 @@ namespace RepositoryLayer.Repository
             existing.PhoneNo = student.PhoneNo;
             existing.Address = student.Address;
             existing.Email = student.Email;
-            existing.UserID = student.UserID;
             existing.ClassID = student.ClassID;
 
             await _dbContext.SaveChangesAsync();
