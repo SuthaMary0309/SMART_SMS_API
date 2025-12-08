@@ -27,7 +27,9 @@ namespace ServiceLayer.Service
                 new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role),
-                new Claim("username", user.UserName)
+                new Claim("username", user.UserName),
+                new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString())
+
             };
 
             var creds = new SigningCredentials(new SymmetricSecurityKey(key),

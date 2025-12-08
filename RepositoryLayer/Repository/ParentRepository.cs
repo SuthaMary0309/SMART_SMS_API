@@ -4,16 +4,13 @@ using RepositoryLayer.Entity;
 using RepositoryLayer.RepositoryInterface;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace RepositoryLayer.Repository
 {
-    public class ParentRepository :IParentRepository
+    public class ParentRepository : IParentRepository
     {
         private readonly ApplicationDbContext _dbContext;
-
         public ParentRepository(ApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -21,9 +18,9 @@ namespace RepositoryLayer.Repository
 
         public async Task<Parent> AddParent(Parent parent)
         {
-            var result = await _dbContext.Parents.AddAsync(parent);
+            var res = await _dbContext.Parents.AddAsync(parent);
             await _dbContext.SaveChangesAsync();
-            return result.Entity;
+            return res.Entity;
         }
 
         public async Task<IEnumerable<Parent>> GetAllParents()
@@ -61,9 +58,5 @@ namespace RepositoryLayer.Repository
             await _dbContext.SaveChangesAsync();
             return true;
         }
-
-       
     }
 }
-    
-
