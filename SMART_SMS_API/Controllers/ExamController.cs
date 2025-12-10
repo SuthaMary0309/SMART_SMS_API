@@ -19,9 +19,10 @@ namespace SMART_SMS_API.Controllers
 
         // 🟣 Add new Exam (parameters-based)
         [HttpPost("add")]
-        public async Task<IActionResult> AddExam([FromBody] ExamRequestDTO dto)
+        public async Task<IActionResult> AddExam([FromBody] ExamRequestDTO request)
+
         {
-            var result = await _examService.AddExamAsync(dto);
+            var result = await _examService.AddExamAsync(request);
             return Ok(result);
         }
 

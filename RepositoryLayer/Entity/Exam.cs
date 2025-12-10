@@ -13,5 +13,7 @@ namespace RepositoryLayer.Entity
         public Guid SubjectID { get; set; }
         public string ExamName { get; set; }
         public DateTime ExamDate { get; set; }
+        public Subject Subject { get; set; }
     }
 }
+
