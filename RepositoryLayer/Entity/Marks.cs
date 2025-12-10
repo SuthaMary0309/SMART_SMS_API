@@ -13,6 +13,7 @@ namespace RepositoryLayer.Entity
         public int Mark { get; set; }
         public Guid StudentID { get; set; } = Guid.Empty;
         public Guid ExamID { get; set; } = Guid.Empty;
+        public Exam Exam { get; set; }
 
     }
 }

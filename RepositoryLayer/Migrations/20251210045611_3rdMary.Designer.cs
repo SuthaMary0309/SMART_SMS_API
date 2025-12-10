@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RepositoryLayer.AppDbContext;
 
@@ -11,9 +12,11 @@ using RepositoryLayer.AppDbContext;
 namespace RepositoryLayer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251210045611_3rdMary")]
+    partial class _3rdMary
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -115,8 +118,6 @@ namespace RepositoryLayer.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("MarksId");
-
-                    b.HasIndex("ExamID");
 
                     b.ToTable("Marks");
                 });
@@ -452,17 +453,6 @@ namespace RepositoryLayer.Migrations
                         .IsRequired();
 
                     b.Navigation("Subject");
-                });
-
-            modelBuilder.Entity("RepositoryLayer.Entity.Marks", b =>
-                {
-                    b.HasOne("RepositoryLayer.Entity.Exam", "Exam")
-                        .WithMany()
-                        .HasForeignKey("ExamID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Exam");
                 });
 #pragma warning restore 612, 618
         }
