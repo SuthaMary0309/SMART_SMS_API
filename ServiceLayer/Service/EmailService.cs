@@ -56,13 +56,13 @@ namespace ServiceLayer.Service
 
             mail.To.Add(dto.To);
 
-            if (dto.File != null)
-            {
-                using var ms = new MemoryStream();
-                await dto.File.CopyToAsync(ms);
-                var attachment = new Attachment(ms, dto.File.FileName);
-                mail.Attachments.Add(attachment);
-            }
+           // //if (dto.File != null)
+            //{
+             //   using var ms = new MemoryStream();
+              //  await dto.File.CopyToAsync(ms);
+               // var attachment = new Attachment(ms, dto.File.FileName);
+              //  mail.Attachments.Add(attachment);
+            //}
 
             var smtp = new SmtpClient(settings["Host"])
             {

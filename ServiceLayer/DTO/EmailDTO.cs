@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ServiceLayer.DTO
 {
-    public class EmailDto
+    public class EmailDTO
     {
         public string To { get; set; }
         public string Subject { get; set; }

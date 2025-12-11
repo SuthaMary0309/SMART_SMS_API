@@ -4,6 +4,6 @@ using System.Net;
 
 public interface IEmailService
 {
-    Task<bool> SendEmailAsync(EmailDto dto);
-    Task<bool> SendEmailWithAttachmentAsync(EmailAttachmentDto dto);
+    Task<bool> SendEmailAsync(EmailDTO dto);
+    Task<bool> SendEmailWithAttachmentAsync(EmailAttachmentDTO dto);
 }
