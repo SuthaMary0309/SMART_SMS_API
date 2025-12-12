@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using RepositoryLayer.AppDbContext;
 using RepositoryLayer.Entity;
 using RepositoryLayer.RepositoryInterface;
 using ServiceLayer.DTO;
@@ -11,6 +14,7 @@ namespace SMART_SMS_API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthRepository _authRepo;
+        private readonly ApplicationDbContext _context;
         private readonly IJwtService _jwtService;
         private readonly ILogger<AuthController> _logger;
         // inject an email sender if you have one (IEmailService) — placeholder shown
@@ -23,7 +27,8 @@ namespace SMART_SMS_API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDTO dto)
+        [AllowAnonymous]
+        public async Task<IActionResult> RegisterAsync([FromBody] RegisterDTO dto)
         {
             try
             {
@@ -60,6 +65,7 @@ namespace SMART_SMS_API.Controllers
         }
 
         [HttpPost("login")]
+        [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginDTO dto)
         {
             if (string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Password))
@@ -116,6 +122,25 @@ namespace SMART_SMS_API.Controllers
                 return BadRequest(new { message = "Invalid or expired token." });
 
             return Ok(new { message = "Password reset successful." });
+        }
+
+        [HttpGet("stats")]
+        public async Task<IActionResult> GetStats()
+        {
+            var studentsCount = await _context.Students.CountAsync();
+            var teachersCount = await _context.Teachers.CountAsync();
+            var examsCount = await _context.Exams.CountAsync();
+            var parentsCount = await _context.Parents.CountAsync();
+
+            var stats = new
+            {
+                Students = studentsCount,
+                Teachers = teachersCount,
+                Exams = examsCount,
+                Parents = parentsCount
+            };
+
+            return Ok(stats);
         }
     }
 }

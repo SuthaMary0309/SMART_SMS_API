@@ -2,38 +2,47 @@
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
+using System.IO;
+using System.Threading.Tasks;
 
 public class GoogleSheetsService
 {
-    private readonly string[] Scopes = { SheetsService.Scope.Spreadsheets };
-    private readonly string ApplicationName = "SMART_SMS";
-    private readonly string SpreadsheetId = "YOUR_SPREADSHEET_ID";
-    private SheetsService _service;
+    private readonly SheetsService _sheetService;
+    private readonly string _spreadsheetId = "YOUR_SHEET_ID"; // Sheet ID paste here
 
-    public GoogleSheetsService(string jsonPath)
+    public GoogleSheetsService()
     {
         GoogleCredential credential;
-        using (var stream = new FileStream(jsonPath, FileMode.Open, FileAccess.Read))
+
+        using (var stream = new FileStream("smartsmsproject-696f0690fc20.json", FileMode.Open, FileAccess.Read))
         {
-            credential = GoogleCredential.FromStream(stream).CreateScoped(Scopes);
+            credential = GoogleCredential.FromStream(stream)
+                .CreateScoped(SheetsService.Scope.Spreadsheets);
         }
 
-        _service = new SheetsService(new BaseClientService.Initializer()
+        _sheetService = new SheetsService(new BaseClientService.Initializer()
         {
             HttpClientInitializer = credential,
-            ApplicationName = ApplicationName
+            ApplicationName = "SMART_SMS",
         });
     }
 
-    public void AddAttendance(string studentName, string date, string status)
+    // ⬇ Append Row (Write Data)
+    public async Task AppendRowAsync(string sheetName, IList<object> values)
     {
-        var range = "Attendance!A:C"; // Sheet name and columns
-        var valueRange = new ValueRange();
-        var oblist = new List<object>() { studentName, date, status };
-        valueRange.Values = new List<IList<object>> { oblist };
+        var body = new ValueRange { Values = new List<IList<object>> { values } };
 
-        var appendRequest = _service.Spreadsheets.Values.Append(valueRange, SpreadsheetId, range);
-        appendRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
-        appendRequest.Execute();
+        var request = _sheetService.Spreadsheets.Values.Append(body, _spreadsheetId, sheetName);
+        request.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
+
+        await request.ExecuteAsync();
+    }
+
+    // ⬇ Read rows
+    public async Task<IList<IList<object>>> ReadRowsAsync(string range)
+    {
+        var request = _sheetService.Spreadsheets.Values.Get(_spreadsheetId, range);
+        var response = await request.ExecuteAsync();
+        return response.Values;
     }
 }
