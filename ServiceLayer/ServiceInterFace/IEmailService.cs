@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Extensions.Configuration;
+using System.Net.Mail;
+using System.Net;
 
-namespace ServiceLayer.ServiceInterFace
+public interface IEmailService
 {
-    public interface IEmailService
-    {
-        Task<bool> SendEmailAsync(string to, string subject, string body);
-    }
+    Task<bool> SendEmailAsync(EmailDTO dto);
+    Task<bool> SendEmailWithAttachmentAsync(EmailAttachmentDTO dto);
 }

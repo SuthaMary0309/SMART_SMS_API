@@ -52,6 +52,10 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+//mail
+builder.Services.AddTransient<IEmailService, EmailService>();
+
+
 // CORS
 builder.Services.AddCors(options =>
 {
