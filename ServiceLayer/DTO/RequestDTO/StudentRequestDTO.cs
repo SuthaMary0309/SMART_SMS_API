@@ -20,5 +20,7 @@ namespace ServiceLayer.DTO.RequestDTO
 
         [Required]
         public Guid ClassID { get; set; }
+
+
     }
 }

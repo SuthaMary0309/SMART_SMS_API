@@ -1,17 +1,16 @@
-﻿using System;
+using Microsoft.AspNetCore.Http;
+using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace RepositoryLayer.Entity
+namespace ServiceLayer.DTO.RequestDTO
 {
-    public class Student
+    public class AddStudentFormRequest
     {
-        public Guid StudentID { get; set; } = Guid.NewGuid();
-
         [Required]
         public string StudentName { get; set; } = string.Empty;
 
         [Required]
-        public string PhoneNo { get; set; } = string.Empty; 
+        public string PhoneNo { get; set; } = string.Empty;
 
         [Required]
         public string Address { get; set; } = string.Empty;
@@ -20,10 +19,10 @@ namespace RepositoryLayer.Entity
         [EmailAddress]
         public string Email { get; set; } = string.Empty;
 
-        public Guid UserID { get; set; }
+        [Required]
         public Guid ClassID { get; set; }
-        public string? ProfileURL { get; set; }
-        public string? ProfileImagePublicId { get; set; }
 
+        public IFormFile? ProfileImage { get; set; }
     }
 }
+

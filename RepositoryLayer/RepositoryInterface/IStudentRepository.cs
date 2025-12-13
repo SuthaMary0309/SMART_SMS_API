@@ -12,5 +12,8 @@ namespace RepositoryLayer.RepoInterFace
         Task<Student?> GetStudentById(Guid id);
         Task<Student?> UpdateStudent(Student student);
         Task<bool> DeleteStudent(Guid id);
+        Task SaveChangesAsync();
+
+        Task<Student?> UpdateProfileImage(Guid id, string profileUrl, string publicId);
     }
 }

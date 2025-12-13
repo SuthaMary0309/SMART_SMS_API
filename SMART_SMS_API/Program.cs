@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RepositoryLayer;
 using RepositoryLayer.AppDbContext;
+using RepositoryLayer.Entity;
 using RepositoryLayer.RepoInterFace;
 using RepositoryLayer.Repository;
 using RepositoryLayer.RepositoryInterface;
@@ -19,8 +20,11 @@ builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnC
 
 // DB
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        b => b.MigrationsAssembly("RepositoryLayer") 
+    )
+);
 // DI Layers  
 builder.Services.AddRepositoryLayer(builder.Configuration);
 builder.Services.AddServiceLayer();
@@ -28,6 +32,8 @@ builder.Services.AddScoped<IJwtService, JwtTokenService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
 builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("Cloudinary"));
+builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 
 // JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");
@@ -55,6 +61,10 @@ builder.Services.AddAuthentication(options =>
 // CORS
 builder.Services.AddCors(options =>
 {
+    options.AddPolicy("AllowAngular", policy =>
+        policy.WithOrigins("http://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod());
     options.AddPolicy("AllowAll", policy =>
         policy.AllowAnyOrigin()
               .AllowAnyHeader()
@@ -84,10 +94,33 @@ builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IParentRepository, ParentRepository>();
 builder.Services.AddScoped<IParentService, ParentService>();
-
+builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "SMART SMS API",
+        Version = "v1"
+    });
+    
+    // Configure IFormFile to be treated as file upload in Swagger
+    c.MapType<Microsoft.AspNetCore.Http.IFormFile>(() => new Microsoft.OpenApi.Models.OpenApiSchema
+    {
+        Type = "string",
+        Format = "binary"
+    });
+    
+    // Custom schema filter to handle form data with files
+    c.SchemaFilter<SMART_SMS_API.Swagger.FileUploadSchemaFilter>();
+});
+
+
+
+
+// AI Chat HttpClient
+builder.Services.AddHttpClient();
 
 // Build the app
 var app = builder.Build();
@@ -100,7 +133,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors("AllowAll");
+
+// Use CORS **after app is built**
+app.UseCors("AllowAngular"); // Angular frontend
+// app.UseCors("AllowAll"); // optional, if needed
+
 app.UseAuthentication();
 app.UseAuthorization();
 
