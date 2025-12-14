@@ -105,7 +105,8 @@ namespace SMART_SMS_API.Controllers
 
         [HttpPut("update/{id}/profile-image")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UpdateProfileImage(Guid id, [FromForm] IFormFile profileImage)
+        [ProducesResponseType(typeof(object), 200)]
+        public async Task<IActionResult> UpdateProfileImage(Guid id, IFormFile profileImage)
         {
             if (profileImage == null || profileImage.Length == 0)
             {

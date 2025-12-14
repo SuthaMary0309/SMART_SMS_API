@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using RepositoryLayer;
 using RepositoryLayer.AppDbContext;
 using RepositoryLayer.Entity;
@@ -10,12 +12,15 @@ using RepositoryLayer.RepositoryInterface;
 using ServiceLayer;
 using ServiceLayer.Service;
 using ServiceLayer.ServiceInterFace;
+using SMART_SMS_API.Swagger;
+using System.Linq;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add configuration files BEFORE Build()
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                     .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
                      .AddEnvironmentVariables();
 
 // DB
@@ -95,28 +100,34 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IParentRepository, ParentRepository>();
 builder.Services.AddScoped<IParentService, ParentService>();
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Make JSON property names case-insensitive
+        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    c.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "SMART SMS API",
         Version = "v1"
     });
     
-    // Configure IFormFile to be treated as file upload in Swagger
-    c.MapType<Microsoft.AspNetCore.Http.IFormFile>(() => new Microsoft.OpenApi.Models.OpenApiSchema
+    // Map IFormFile to binary format for Swagger
+    c.MapType<IFormFile>(() => new OpenApiSchema
     {
         Type = "string",
         Format = "binary"
     });
     
-    // Custom schema filter to handle form data with files
-    c.SchemaFilter<SMART_SMS_API.Swagger.FileUploadSchemaFilter>();
+    // Use operation filter to handle file uploads in request body
+    c.OperationFilter<FileUploadOperationFilter>();
+    
+    // Resolve any conflicting actions
+    c.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
 });
-
-
 
 
 // AI Chat HttpClient
