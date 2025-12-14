@@ -20,20 +20,24 @@ namespace RepositoryLayer.Repository
             _db = db;
         }
 
-        public async Task<User> Register(User user, string password)
+        public async Task<(User user, string plainPassword)> CreateUserAuto(string email, string role)
+
         {
-            // 1) Email uniqueness
-            if (await _db.Users.AnyAsync(u => u.Email == user.Email))
-                throw new InvalidOperationException("Email already in use.");
+            if (await _db.Users.AnyAsync(u => u.Email == email))
+                throw new InvalidOperationException("User already exists for this email");
 
-            // 2) Generate AdmissionNumber if not provided (6 digits)
-            if (string.IsNullOrWhiteSpace(user.AdmissionNumber))
+            var password = GenerateRandomPassword();
+
+            var user = new User
             {
-                user.AdmissionNumber = await GenerateAdmissionNumber();
-            }
+                Email = email,
+                Role = role
+            };
 
-            // 3) Generate UserName like SMART_SMS_{PREFIX}{AdmissionNumber}
-            var prefix = user.Role?.ToLower() switch
+            // Admission No
+            user.AdmissionNumber = await GenerateAdmissionNumber();
+
+            var prefix = role.ToLower() switch
             {
                 "student" => "STU",
                 "teacher" => "TEA",
@@ -41,20 +45,27 @@ namespace RepositoryLayer.Repository
                 "admin" => "ADM",
                 _ => "USR"
             };
+
             user.UserName = $"SMART_SMS_{prefix}{user.AdmissionNumber}";
 
-            // 4) Hash password
             CreatePasswordHash(password, out byte[] hash, out byte[] salt);
             user.PasswordHash = hash;
             user.PasswordSalt = salt;
+
             user.CreatedAt = DateTime.UtcNow;
             user.UpdatedAt = DateTime.UtcNow;
 
-            await _db.Users.AddAsync(user);
+            _db.Users.Add(user);
             await _db.SaveChangesAsync();
 
-            return user;
+            return (user, password); // 🔥 password return pannrom (email send panna)
         }
+
+        private string GenerateRandomPassword()
+        {
+            return $"SMS@{Guid.NewGuid().ToString("N").Substring(0, 8)}";
+        }
+
 
         public async Task<User?> Login(string email, string password)
         {
@@ -145,6 +156,11 @@ namespace RepositoryLayer.Repository
                 var compute = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
                 return compute.SequenceEqual(hash);
             }
+        }
+
+        public Task<User> Register(User user, string password)
+        {
+            throw new NotImplementedException();
         }
     }
 }

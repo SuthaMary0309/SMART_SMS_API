@@ -1,30 +1,25 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using ServiceLayer.DTO;
+﻿using Microsoft.AspNetCore.Mvc;
 using ServiceLayer.ServiceInterFace;
+using ServiceLayer.DTO;
 
 namespace SMART_SMS_API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/email")]
     [ApiController]
     public class EmailController : ControllerBase
     {
-        private readonly IEmailService _emailService;
+        private readonly IEmailService _email;
 
-        public EmailController(IEmailService emailService)
+        public EmailController(IEmailService email)
         {
-            _emailService = emailService;
+            _email = email;
         }
 
         [HttpPost("send")]
-        public async Task<IActionResult> SendEmail([FromBody] EmailDto data)
+        public async Task<IActionResult> Send([FromBody] EmailDTO dto)
         {
-            var result = await _emailService.SendEmailAsync(data.To, data.Subject, data.Body);
-
-            if (result)
-                return Ok(new { message = "Email sent successfully" });
-
-            return BadRequest("Email sending failed");
+            var sent = await _email.SendEmailAsync(dto);
+            return sent ? Ok("Email Sent") : StatusCode(500, "Error");
         }
     }
 }

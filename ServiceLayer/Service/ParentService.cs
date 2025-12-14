@@ -1,5 +1,7 @@
-﻿using RepositoryLayer.Entity;
+﻿using RepositoryLayer.AppDbContext;
+using RepositoryLayer.Entity;
 using RepositoryLayer.RepositoryInterface;
+using ServiceLayer.DTO;
 using ServiceLayer.DTO.RequestDTO;
 using ServiceLayer.ServiceInterFace;
 using System;
@@ -11,26 +13,48 @@ namespace ServiceLayer.Service
     public class ParentService : IParentService
     {
         private readonly IParentRepository _parentRepository;
-        public ParentService(IParentRepository parentRepository)
+        private readonly IAuthRepository _authRepo;
+        private readonly IEmailService _email;
+
+        public ParentService(
+            IParentRepository parentRepository,
+            IAuthRepository authRepo,
+            IEmailService email)
         {
             _parentRepository = parentRepository;
+            _authRepo = authRepo;
+            _email = email;
         }
 
-        public async Task<Parent> AddParentAsync(ParentRequestDTO request, Guid? userId)
+        public async Task<Parent> AddParentAsync(ParentRequestDTO dto)
         {
+            var (user, password) =
+                await _authRepo.CreateUserAuto(dto.Email, "Parent");
+
             var parent = new Parent
             {
-                ParentID = Guid.NewGuid(),
-                ParentName = request.ParentName,
-                PhoneNo = request.PhoneNo,
-                Address = request.Address,
-                Email = request.Email,
-                StudentID = request.StudentID,
-                UserID = userId
+                ParentName = dto.ParentName,
+                PhoneNo = dto.PhoneNo,
+                Address = dto.Address,
+                Email = dto.Email,
+                StudentID = dto.StudentID,
+                UserID = user.UserID
             };
 
-            return await _parentRepository.AddParent(parent);
+            await _parentRepository.AddParent(parent); // ✅ repository
+
+            await _email.SendEmailAsync(new EmailDTO
+            {
+                To = dto.Email,
+                Subject = "SMART SMS - Parent Login",
+                Body = $"Username: {user.UserName}, Password: {password}"
+            });
+
+            return parent;
         }
+
+
+
 
         public async Task<IEnumerable<Parent>> GetAllParentsAsync()
         {
@@ -42,7 +66,7 @@ namespace ServiceLayer.Service
             return await _parentRepository.GetParentById(id);
         }
 
-        public async Task<Parent?> UpdateParentAsync(Guid id, ParentRequestDTO request, Guid? userId)
+        public async Task<Parent?> UpdateParentAsync(Guid id, ParentRequestDTO request)
         {
             var existing = await _parentRepository.GetParentById(id);
             if (existing == null) return null;
@@ -52,14 +76,17 @@ namespace ServiceLayer.Service
             existing.Address = request.Address;
             existing.Email = request.Email;
             existing.StudentID = request.StudentID;
-            existing.UserID = userId;
 
+            // ❌ DO NOT CHANGE UserID
             return await _parentRepository.UpdateParent(existing);
         }
+
 
         public async Task<bool> DeleteParentAsync(Guid id)
         {
             return await _parentRepository.DeleteParent(id);
         }
+
+       
     }
 }

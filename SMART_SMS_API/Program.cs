@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using RepositoryLayer;
 using RepositoryLayer.AppDbContext;
 using RepositoryLayer.Entity;
@@ -12,24 +11,21 @@ using RepositoryLayer.RepositoryInterface;
 using ServiceLayer;
 using ServiceLayer.Service;
 using ServiceLayer.ServiceInterFace;
-using SMART_SMS_API.Swagger;
-using System.Linq;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add configuration files BEFORE Build()
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                     .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
                      .AddEnvironmentVariables();
 
 // DB
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        b => b.MigrationsAssembly("RepositoryLayer") 
-    )
-);
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// HttpClient Factory (required for ChatController)
+builder.Services.AddHttpClient();
+
 // DI Layers  
 builder.Services.AddRepositoryLayer(builder.Configuration);
 builder.Services.AddServiceLayer();
@@ -37,8 +33,6 @@ builder.Services.AddScoped<IJwtService, JwtTokenService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
 builder.Services.AddScoped<IReportService, ReportService>();
-builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("Cloudinary"));
-builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 
 // JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");
@@ -63,13 +57,13 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+//mail
+builder.Services.AddTransient<IEmailService, EmailService>();
+
+
 // CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAngular", policy =>
-        policy.WithOrigins("http://localhost:4200")
-              .AllowAnyHeader()
-              .AllowAnyMethod());
     options.AddPolicy("AllowAll", policy =>
         policy.AllowAnyOrigin()
               .AllowAnyHeader()
@@ -81,6 +75,10 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Google Sheets
 builder.Services.AddSingleton<GoogleSheetsService>();
+
+// Cloudinary Configuration
+builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("Cloudinary"));
+builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 
 // Repositories & Services
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
@@ -99,39 +97,10 @@ builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IParentRepository, ParentRepository>();
 builder.Services.AddScoped<IParentService, ParentService>();
-builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        // Make JSON property names case-insensitive
-        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
-    });
+
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "SMART SMS API",
-        Version = "v1"
-    });
-    
-    // Map IFormFile to binary format for Swagger
-    c.MapType<IFormFile>(() => new OpenApiSchema
-    {
-        Type = "string",
-        Format = "binary"
-    });
-    
-    // Use operation filter to handle file uploads in request body
-    c.OperationFilter<FileUploadOperationFilter>();
-    
-    // Resolve any conflicting actions
-    c.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
-});
-
-
-// AI Chat HttpClient
-builder.Services.AddHttpClient();
+builder.Services.AddSwaggerGen();
 
 // Build the app
 var app = builder.Build();
@@ -144,11 +113,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-// Use CORS **after app is built**
-app.UseCors("AllowAngular"); // Angular frontend
-// app.UseCors("AllowAll"); // optional, if needed
-
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 

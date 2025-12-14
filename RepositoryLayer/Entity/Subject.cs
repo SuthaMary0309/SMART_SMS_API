@@ -19,7 +19,10 @@ namespace RepositoryLayer.Entity
         public Guid ClassID { get; set; } = Guid.Empty;
 
         public Guid UserID { get; set; } = Guid.Empty;
-
         public Guid TeacherID { get; set; } = Guid.Empty;
+        public ICollection<Exam> Exams { get; set; } = new List<Exam>();
+
+
+
     }
 }

@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace RepositoryLayer.Entity
 {
+    // RepositoryLayer/Entity/Attendance.cs
     public class Attendance
     {
         public Guid AttendanceId { get; set; } = Guid.Empty;
-
         public Guid ClassId { get; set; } = Guid.Empty;
         public Guid StudentId { get; set; } = Guid.Empty;
         public Guid TeacherId { get; set; } = Guid.Empty;
@@ -17,6 +17,8 @@ namespace RepositoryLayer.Entity
         public DateTime Day { get; set; }
         public DateTime Time { get; set; }
 
-
+        // add:
+        public string Status { get; set; }
     }
+
 }

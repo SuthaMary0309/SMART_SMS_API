@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
+using RepositoryLayer.AppDbContext;
 using RepositoryLayer.Entity;
 using RepositoryLayer.RepoInterFace;
+using RepositoryLayer.RepositoryInterface;
+using ServiceLayer.DTO;
 using ServiceLayer.DTO.RequestDTO;
 using ServiceLayer.ServiceInterFace;
 using System;
@@ -13,22 +16,20 @@ namespace ServiceLayer.Service
     public class StudentService : IStudentService
     {
         private readonly IStudentRepository _studentRepository;
+        private readonly IAuthRepository _authRepo;
+        private readonly IEmailService _email;
         private readonly ICloudinaryService _cloudinaryService;
 
-        public StudentService(IStudentRepository studentRepository, ICloudinaryService cloudinaryService)
+        public StudentService(
+            IStudentRepository studentRepository,
+            IAuthRepository authRepo,
+            IEmailService email,
+            ICloudinaryService cloudinaryService)
         {
             _studentRepository = studentRepository;
+            _authRepo = authRepo;
+            _email = email;
             _cloudinaryService = cloudinaryService;
-        }
-
-        public async Task<IEnumerable<Student>> GetAllStudentsAsync()
-        {
-            return await _studentRepository.GetAllStudents();
-        }
-
-        public async Task<Student?> GetStudentByIdAsync(Guid id)
-        {
-            return await _studentRepository.GetStudentById(id);
         }
 
         public async Task<Student> AddStudentAsync(StudentRequestDTO request, IFormFile? profileImage = null)
@@ -58,6 +59,9 @@ namespace ServiceLayer.Service
                 profileImagePublicId = uploadResult.PublicId;
             }
 
+            // Create user account for the student
+            var (user, password) = await _authRepo.CreateUserAuto(request.Email, "Student");
+
             var student = new Student
             {
                 StudentID = studentId,
@@ -67,11 +71,25 @@ namespace ServiceLayer.Service
                 Email = request.Email,
                 ClassID = request.ClassID,
                 ProfileURL = profileUrl,
-                ProfileImagePublicId = profileImagePublicId
+                ProfileImagePublicId = profileImagePublicId,
+                UserID = user.UserID
             };
+            await _studentRepository.AddStudent(student);
 
-            return await _studentRepository.AddStudent(student);
+            // Send email with login credentials
+            await _email.SendEmailAsync(new EmailDTO
+            {
+                To = request.Email,
+                Subject = "Student Login",
+                Body = $"Username: {user.UserName}, Password: {password}"
+            });
+
+
+            return student;
         }
+
+
+
 
         public async Task<Student?> UpdateStudentAsync(Guid id, StudentRequestDTO request)
         {
@@ -83,6 +101,7 @@ namespace ServiceLayer.Service
             existing.Address = request.Address;
             existing.Email = request.Email;
             existing.ClassID = request.ClassID;
+            
 
             return await _studentRepository.UpdateStudent(existing);
         }
@@ -91,6 +110,20 @@ namespace ServiceLayer.Service
         {
             return await _studentRepository.DeleteStudent(id);
         }
+
+        public async Task<IEnumerable<Student>> GetAllStudentsAsync()
+        {
+            // Fetch all students from repository
+            var students = await _studentRepository.GetAllStudents();
+            return students;
+        }
+
+
+        public async Task<Student?> GetStudentByIdAsync(Guid id)
+        {
+            return await _studentRepository.GetStudentById(id);
+        }
+
 
         public async Task<Student?> UpdateProfileImageAsync(Guid id, string profileUrl, string publicId)
         {

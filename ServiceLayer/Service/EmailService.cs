@@ -1,12 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
+using ServiceLayer.DTO;
 using ServiceLayer.ServiceInterFace;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Mail;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ServiceLayer.Service
 {
@@ -19,30 +15,50 @@ namespace ServiceLayer.Service
             _config = config;
         }
 
-        public async Task<bool> SendEmailAsync(string to, string subject, string body)
+        public async Task<bool> SendEmailAsync(EmailDTO dto)
         {
-            var settings = _config.GetSection("EmailSettings");
-
-            var message = new MailMessage
+            try
             {
-                From = new MailAddress(settings["SenderEmail"], settings["SenderName"]),
-                Subject = subject,
-                Body = body,
-                IsBodyHtml = true
-            };
+                var smtp = new SmtpClient
+                {
+                    Host = _config["EmailSettings:Host"],
+                    Port = int.Parse(_config["EmailSettings:Port"]),
+                    EnableSsl = true, // ✅ REQUIRED
+                    DeliveryMethod = SmtpDeliveryMethod.Network,
+                    UseDefaultCredentials = false, // ❌ MUST BE FALSE
+                    Credentials = new NetworkCredential(
+                        _config["EmailSettings:SenderEmail"],
+                        _config["EmailSettings:AppPassword"]
+                    )
+                };
 
-            message.To.Add(to);
+                var mail = new MailMessage
+                {
+                    From = new MailAddress(
+                        _config["EmailSettings:SenderEmail"],
+                        _config["EmailSettings:SenderName"]
+                    ),
+                    Subject = dto.Subject,
+                    Body = dto.Body,
+                    IsBodyHtml = false
+                };
 
-            var smtp = new SmtpClient(settings["Host"])
+                mail.To.Add(dto.To);
+
+                await smtp.SendMailAsync(mail);
+                return true;
+            }
+            catch (Exception ex)
             {
-                Port = int.Parse(settings["Port"]),
-                Credentials = new NetworkCredential(settings["SenderEmail"], settings["AppPassword"]),
-                EnableSsl = true
-            };
-
-            await smtp.SendMailAsync(message);
-
-            return true;
+                Console.WriteLine("EMAIL ERROR: " + ex.Message);
+                throw; // show real error in swagger
+            }
         }
     }
 }
+
+
+
+
+
+

@@ -20,8 +20,10 @@ namespace RepositoryLayer.Entity
         [EmailAddress]
         public string Email { get; set; } = string.Empty;
 
-        public Guid UserID { get; set; }
-        public Guid ClassID { get; set; }
+        public Guid? UserID { get; set; }
+        public Guid? ClassID { get; set; }
+        public Class? Class { get; set; }
+        public ICollection<Marks> Marks { get; set; } = new List<Marks>();
         public string? ProfileURL { get; set; }
         public string? ProfileImagePublicId { get; set; }
 

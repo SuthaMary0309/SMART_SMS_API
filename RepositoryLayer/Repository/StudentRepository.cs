@@ -19,19 +19,23 @@ namespace RepositoryLayer.Repository
 
         public async Task<Student> AddStudent(Student student)
         {
-            var result = await _dbContext.Students.AddAsync(student);
+            await _dbContext.Students.AddAsync(student);
             await _dbContext.SaveChangesAsync();
-            return result.Entity;
+            return student;
         }
 
         public async Task<IEnumerable<Student>> GetAllStudents()
         {
-            return await _dbContext.Students.ToListAsync();
+            return await _dbContext.Students
+                                   .Include(s => s.Class)
+                                   .ToListAsync();
         }
 
         public async Task<Student?> GetStudentById(Guid id)
         {
-            return await _dbContext.Students.FindAsync(id);
+            return await _dbContext.Students
+                                   .Include(s => s.Class)
+                                   .FirstOrDefaultAsync(s => s.StudentID == id);
         }
 
 
@@ -50,6 +54,7 @@ namespace RepositoryLayer.Repository
             existing.Address = student.Address;
             existing.Email = student.Email;
             existing.ClassID = student.ClassID;
+            existing.UserID = student.UserID;
 
             await _dbContext.SaveChangesAsync();
             return existing;

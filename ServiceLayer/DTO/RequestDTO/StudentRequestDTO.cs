@@ -18,9 +18,8 @@ namespace ServiceLayer.DTO.RequestDTO
         [EmailAddress]
         public string Email { get; set; }
 
-        [Required]
-        public Guid ClassID { get; set; }
-
-
+        public Guid? ClassID { get; set; }  // Nullable
+        
+        
     }
 }

@@ -19,11 +19,12 @@ namespace SMART_SMS_API.Controllers
         private readonly ILogger<AuthController> _logger;
         // inject an email sender if you have one (IEmailService) — placeholder shown
 
-        public AuthController(IAuthRepository authRepo, IJwtService jwtService, ILogger<AuthController> logger)
+        public AuthController(IAuthRepository authRepo, IJwtService jwtService, ILogger<AuthController> logger, ApplicationDbContext context)
         {
             _authRepo = authRepo;
             _jwtService = jwtService;
             _logger = logger;
+            _context = context;
         }
 
         [HttpPost("register")]
@@ -49,7 +50,7 @@ namespace SMART_SMS_API.Controllers
                 {
                     Email = dto.Email,
                     Role = dto.Role,
-                    //AdmissionNumber = dto.AdmissionNumber // optional
+                 
                 };
 
                 var created = await _authRepo.Register(user, dto.Password);
@@ -76,7 +77,48 @@ namespace SMART_SMS_API.Controllers
                 return Unauthorized(new { message = "Invalid Email/Password" });
 
             var token = _jwtService.GenerateJwtToken(user);
-            return Ok(new { token, role = user.Role, username = user.UserName });
+
+            // Role-based response with additional details
+            if (user.Role == "Student")
+            {
+                var student = await _context.Students.FirstOrDefaultAsync(s => s.UserID == user.UserID);
+                return Ok(new 
+                { 
+                    token, 
+                    role = user.Role, 
+                    username = user.UserName,
+                    studentID = student?.StudentID,
+                    studentName = student?.StudentName ?? user.UserName,
+                    name = student?.StudentName ?? user.UserName
+                });
+            }
+            else if (user.Role == "Teacher")
+            {
+                var teacher = await _context.Teachers.FirstOrDefaultAsync(t => t.UserID == user.UserID);
+                return Ok(new 
+                { 
+                    token, 
+                    role = user.Role, 
+                    username = user.UserName,
+                    teacherID = teacher?.TeacherID,
+                    name = teacher?.TeacherName ?? user.UserName
+                });
+            }
+            else if (user.Role == "Parent")
+            {
+                var parent = await _context.Parents.FirstOrDefaultAsync(p => p.UserID == user.UserID);
+                return Ok(new 
+                { 
+                    token, 
+                    role = user.Role, 
+                    username = user.UserName,
+                    parentID = parent?.ParentID,
+                    name = parent?.ParentName ?? user.UserName
+                });
+            }
+            
+            // Admin or other roles
+            return Ok(new { token, role = user.Role, username = user.UserName, name = user.UserName });
         }
 
         // Forgot password - request a reset token
@@ -90,11 +132,9 @@ namespace SMART_SMS_API.Controllers
 
                 var token = await _authRepo.CreatePasswordResetToken(dto.Email);
 
-                // TODO: send token via email
-                // For demo return token — in production DO NOT return token in response.
-                // Call your email service here: _emailService.SendResetEmail(dto.Email, token);
+           
 
-                return Ok(new { message = "Reset token generated. Check email.", token }); // remove token on production
+                return Ok(new { message = "Reset token generated. Check email.", token }); 
             }
             catch (InvalidOperationException ex)
             {
