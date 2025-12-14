@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc;
-using SMART_SMS_API.DTOs;
+﻿using Microsoft.AspNetCore.Mvc;
 using ServiceLayer.ServiceInterFace;
+using ServiceLayer.DTO;
 
 namespace SMART_SMS_API.Controllers
 {

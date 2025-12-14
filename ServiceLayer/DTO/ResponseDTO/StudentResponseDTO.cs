@@ -9,6 +9,7 @@ namespace ServiceLayer.DTO.ResponseDTO
         public string Email { get; set; }
         public string PhoneNo { get; set; }
         public string Address { get; set; }
-        public string ClassName { get; set; }
+        public string? ClassName { get; set; }
+        public Guid ClassID { get; set; }
     }
 }

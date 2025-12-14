@@ -6,55 +6,49 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace RepositoryLayer.Migrations
 {
     /// <inheritdoc />
-    public partial class _3rdMary : Migration
+    public partial class Mary : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Students_Classes_ClassID",
+                table: "Students");
+
             migrationBuilder.AlterColumn<Guid>(
                 name: "UserID",
-                table: "Parents",
+                table: "Students",
                 type: "uniqueidentifier",
                 nullable: true,
                 oldClrType: typeof(Guid),
                 oldType: "uniqueidentifier");
 
             migrationBuilder.AlterColumn<Guid>(
-                name: "StudentID",
-                table: "Parents",
+                name: "ClassID",
+                table: "Students",
                 type: "uniqueidentifier",
                 nullable: true,
                 oldClrType: typeof(Guid),
                 oldType: "uniqueidentifier");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Exams_SubjectID",
-                table: "Exams",
-                column: "SubjectID");
-
             migrationBuilder.AddForeignKey(
-                name: "FK_Exams_Subjects_SubjectID",
-                table: "Exams",
-                column: "SubjectID",
-                principalTable: "Subjects",
-                principalColumn: "SubjectID",
-                onDelete: ReferentialAction.Cascade);
+                name: "FK_Students_Classes_ClassID",
+                table: "Students",
+                column: "ClassID",
+                principalTable: "Classes",
+                principalColumn: "ClassId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_Exams_Subjects_SubjectID",
-                table: "Exams");
-
-            migrationBuilder.DropIndex(
-                name: "IX_Exams_SubjectID",
-                table: "Exams");
+                name: "FK_Students_Classes_ClassID",
+                table: "Students");
 
             migrationBuilder.AlterColumn<Guid>(
                 name: "UserID",
-                table: "Parents",
+                table: "Students",
                 type: "uniqueidentifier",
                 nullable: false,
                 defaultValue: new Guid("00000000-0000-0000-0000-000000000000"),
@@ -63,14 +57,22 @@ namespace RepositoryLayer.Migrations
                 oldNullable: true);
 
             migrationBuilder.AlterColumn<Guid>(
-                name: "StudentID",
-                table: "Parents",
+                name: "ClassID",
+                table: "Students",
                 type: "uniqueidentifier",
                 nullable: false,
                 defaultValue: new Guid("00000000-0000-0000-0000-000000000000"),
                 oldClrType: typeof(Guid),
                 oldType: "uniqueidentifier",
                 oldNullable: true);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Students_Classes_ClassID",
+                table: "Students",
+                column: "ClassID",
+                principalTable: "Classes",
+                principalColumn: "ClassId",
+                onDelete: ReferentialAction.Cascade);
         }
     }
 }

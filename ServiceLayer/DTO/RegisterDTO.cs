@@ -13,7 +13,7 @@ namespace ServiceLayer.DTO
         public string Password { get; set; }
         public string ConfirmPassword { get; set; }
         public string Role { get; set; }             // Admin, Teacher, Parent, Student
-        public string? AdmissionNumber { get; set; } // optional: if provided use it, else generate
+        //public string? AdmissionNumber { get; set; } // optional: if provided use it, else generate
     }
 
 

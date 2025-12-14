@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,5 +12,7 @@ namespace RepositoryLayer.Entity
         public Guid ClassId { get; set; }
         public string ClassName { get; set; } = string.Empty;
         public string Grade { get; set; }
+        public ICollection<Student> Students { get; set; } = new List<Student>();
+
     }
 }

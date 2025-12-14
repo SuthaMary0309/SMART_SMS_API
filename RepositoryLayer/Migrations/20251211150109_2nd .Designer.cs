@@ -12,8 +12,8 @@ using RepositoryLayer.AppDbContext;
 namespace RepositoryLayer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251210045611_3rdMary")]
-    partial class _3rdMary
+    [Migration("20251211150109_2nd ")]
+    partial class _2nd
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -119,6 +119,10 @@ namespace RepositoryLayer.Migrations
 
                     b.HasKey("MarksId");
 
+                    b.HasIndex("ExamID");
+
+                    b.HasIndex("StudentID");
+
                     b.ToTable("Marks");
                 });
 
@@ -218,6 +222,8 @@ namespace RepositoryLayer.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("StudentID");
+
+                    b.HasIndex("ClassID");
 
                     b.ToTable("Students");
                 });
@@ -447,12 +453,57 @@ namespace RepositoryLayer.Migrations
             modelBuilder.Entity("RepositoryLayer.Entity.Exam", b =>
                 {
                     b.HasOne("RepositoryLayer.Entity.Subject", "Subject")
-                        .WithMany()
+                        .WithMany("Exams")
                         .HasForeignKey("SubjectID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Subject");
+                });
+
+            modelBuilder.Entity("RepositoryLayer.Entity.Marks", b =>
+                {
+                    b.HasOne("RepositoryLayer.Entity.Exam", "Exam")
+                        .WithMany()
+                        .HasForeignKey("ExamID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RepositoryLayer.Entity.Student", "Student")
+                        .WithMany("Marks")
+                        .HasForeignKey("StudentID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Exam");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("RepositoryLayer.Entity.Student", b =>
+                {
+                    b.HasOne("RepositoryLayer.Entity.Class", "Class")
+                        .WithMany("Students")
+                        .HasForeignKey("ClassID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Class");
+                });
+
+            modelBuilder.Entity("RepositoryLayer.Entity.Class", b =>
+                {
+                    b.Navigation("Students");
+                });
+
+            modelBuilder.Entity("RepositoryLayer.Entity.Student", b =>
+                {
+                    b.Navigation("Marks");
+                });
+
+            modelBuilder.Entity("RepositoryLayer.Entity.Subject", b =>
+                {
+                    b.Navigation("Exams");
                 });
 #pragma warning restore 612, 618
         }

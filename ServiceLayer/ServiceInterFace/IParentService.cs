@@ -10,8 +10,8 @@ namespace ServiceLayer.ServiceInterFace
     {
         Task<IEnumerable<Parent>> GetAllParentsAsync();
         Task<Parent?> GetParentByIdAsync(Guid id);
-        Task<Parent> AddParentAsync(ParentRequestDTO request, Guid? userId);
-        Task<Parent?> UpdateParentAsync(Guid id, ParentRequestDTO request, Guid? userId);
+        Task<Parent> AddParentAsync(ParentRequestDTO dto);
+        Task<Parent?> UpdateParentAsync(Guid id, ParentRequestDTO request);
         Task<bool> DeleteParentAsync(Guid id);
     }
 }

@@ -31,11 +31,7 @@ namespace SMART_SMS_API.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            Guid? userId = null;
-            if (Guid.TryParse(userIdClaim, out var uid)) userId = uid;
-
-            var created = await _parentService.AddParentAsync(dto, userId);
+            var created = await _parentService.AddParentAsync(dto);
             return Ok(created);
         }
 
@@ -44,14 +40,12 @@ namespace SMART_SMS_API.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            Guid? userId = null;
-            if (Guid.TryParse(userIdClaim, out var uid)) userId = uid;
-
-            var updated = await _parentService.UpdateParentAsync(id, dto, userId);
+            var updated = await _parentService.UpdateParentAsync(id, dto);
             if (updated == null) return NotFound();
+
             return Ok(updated);
         }
+
 
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(Guid id)

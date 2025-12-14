@@ -12,8 +12,8 @@ using RepositoryLayer.AppDbContext;
 namespace RepositoryLayer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251210051546_$thMary")]
-    partial class thMary
+    [Migration("20251213133008_mary_09")]
+    partial class mary_09
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -39,6 +39,10 @@ namespace RepositoryLayer.Migrations
 
                     b.Property<DateTime>("Day")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("StudentId")
                         .HasColumnType("uniqueidentifier");
@@ -121,6 +125,8 @@ namespace RepositoryLayer.Migrations
 
                     b.HasIndex("ExamID");
 
+                    b.HasIndex("StudentID");
+
                     b.ToTable("Marks");
                 });
 
@@ -201,7 +207,7 @@ namespace RepositoryLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("ClassID")
+                    b.Property<Guid?>("ClassID")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Email")
@@ -216,10 +222,12 @@ namespace RepositoryLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("UserID")
+                    b.Property<Guid?>("UserID")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("StudentID");
+
+                    b.HasIndex("ClassID");
 
                     b.ToTable("Students");
                 });
@@ -404,9 +412,6 @@ namespace RepositoryLayer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("AdmissionNumber")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -449,7 +454,7 @@ namespace RepositoryLayer.Migrations
             modelBuilder.Entity("RepositoryLayer.Entity.Exam", b =>
                 {
                     b.HasOne("RepositoryLayer.Entity.Subject", "Subject")
-                        .WithMany()
+                        .WithMany("Exams")
                         .HasForeignKey("SubjectID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -465,7 +470,39 @@ namespace RepositoryLayer.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("RepositoryLayer.Entity.Student", "Student")
+                        .WithMany("Marks")
+                        .HasForeignKey("StudentID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Exam");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("RepositoryLayer.Entity.Student", b =>
+                {
+                    b.HasOne("RepositoryLayer.Entity.Class", "Class")
+                        .WithMany("Students")
+                        .HasForeignKey("ClassID");
+
+                    b.Navigation("Class");
+                });
+
+            modelBuilder.Entity("RepositoryLayer.Entity.Class", b =>
+                {
+                    b.Navigation("Students");
+                });
+
+            modelBuilder.Entity("RepositoryLayer.Entity.Student", b =>
+                {
+                    b.Navigation("Marks");
+                });
+
+            modelBuilder.Entity("RepositoryLayer.Entity.Subject", b =>
+                {
+                    b.Navigation("Exams");
                 });
 #pragma warning restore 612, 618
         }

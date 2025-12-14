@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
 using ServiceLayer.ServiceInterFace;
-using SMART_SMS_API.DTOs;
 using System.Net;
 using System.Net.Mail;
-using System.IO;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using ServiceLayer.DTO;
+using ServiceLayer.ServiceInterFace;
 
 namespace ServiceLayer.Service
 {
@@ -19,63 +19,48 @@ namespace ServiceLayer.Service
 
         public async Task<bool> SendEmailAsync(EmailDTO dto)
         {
-            var settings = _config.GetSection("EmailSettings");
-
-            var mail = new MailMessage()
+            try
             {
-                From = new MailAddress(settings["SenderEmail"], settings["SenderName"]),
-                Subject = dto.Subject,
-                Body = dto.Body,
-                IsBodyHtml = true
-            };
+                var smtp = new SmtpClient
+                {
+                    Host = _config["EmailSettings:Host"],
+                    Port = int.Parse(_config["EmailSettings:Port"]),
+                    EnableSsl = true, // ✅ REQUIRED
+                    DeliveryMethod = SmtpDeliveryMethod.Network,
+                    UseDefaultCredentials = false, // ❌ MUST BE FALSE
+                    Credentials = new NetworkCredential(
+                        _config["EmailSettings:SenderEmail"],
+                        _config["EmailSettings:AppPassword"]
+                    )
+                };
 
-            mail.To.Add(dto.To);
+                var mail = new MailMessage
+                {
+                    From = new MailAddress(
+                        _config["EmailSettings:SenderEmail"],
+                        _config["EmailSettings:SenderName"]
+                    ),
+                    Subject = dto.Subject,
+                    Body = dto.Body,
+                    IsBodyHtml = false
+                };
 
-            var smtp = new SmtpClient(settings["Host"])
+                mail.To.Add(dto.To);
+
+                await smtp.SendMailAsync(mail);
+                return true;
+            }
+            catch (Exception ex)
             {
-                Port = int.Parse(settings["Port"]),
-                Credentials = new NetworkCredential(settings["SenderEmail"], settings["AppPassword"]),
-                EnableSsl = true
-            };
-
-            await smtp.SendMailAsync(mail);
-            return true;
-        }
-
-        public async Task<bool> SendEmailWithAttachmentAsync(EmailAttachmentDTO dto)
-        {
-            var settings = _config.GetSection("EmailSettings");
-
-            var mail = new MailMessage()
-            {
-                From = new MailAddress(settings["SenderEmail"], settings["SenderName"]),
-                Subject = dto.Subject,
-                Body = dto.Body,
-                IsBodyHtml = true
-            };
-
-            mail.To.Add(dto.To);
-
-           // //if (dto.File != null)
-            //{
-             //   using var ms = new MemoryStream();
-              //  await dto.File.CopyToAsync(ms);
-               // var attachment = new Attachment(ms, dto.File.FileName);
-              //  mail.Attachments.Add(attachment);
-            //}
-
-            var smtp = new SmtpClient(settings["Host"])
-            {
-                Port = int.Parse(settings["Port"]),
-                Credentials = new NetworkCredential(settings["SenderEmail"], settings["AppPassword"]),
-                EnableSsl = true
-            };
-
-            await smtp.SendMailAsync(mail);
-            return true;
+                Console.WriteLine("EMAIL ERROR: " + ex.Message);
+                throw; // show real error in swagger
+            }
         }
     }
 }
+
+
+
 
 
 
