@@ -14,6 +14,7 @@ namespace RepositoryLayer.Entity
         public Guid StudentID { get; set; } = Guid.Empty;
         public Guid ExamID { get; set; } = Guid.Empty;
         public Exam Exam { get; set; }
+        public Student? Student { get; set; }
 
     }
 }

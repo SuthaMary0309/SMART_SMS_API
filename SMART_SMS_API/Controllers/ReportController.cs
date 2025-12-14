@@ -1,147 +1,61 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using RepositoryLayer.AppDbContext;
+using ServiceLayer.ServiceInterFace;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
+using RepositoryLayer.AppDbContext;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace SMART_SMS_API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class ReportController : ControllerBase
     {
+        private readonly IReportService _reportService;
         private readonly ApplicationDbContext _db;
 
-        public ReportController(ApplicationDbContext db)
+        public ReportController(IReportService reportService, ApplicationDbContext db)
         {
+            _reportService = reportService;
             _db = db;
         }
 
-        // -------------------------------------------------------
-        // STUDENT REPORT - FIXED VERSION
-        // -------------------------------------------------------
+        // Dropdown helpers
+        [HttpGet("students")]
+        public async Task<IActionResult> GetAllStudents()
+        {
+            var list = await _db.Students
+                .Select(s => new { studentId = s.StudentID, studentName = s.StudentName, classId = s.ClassID })
+                .ToListAsync();
+            return Ok(list);
+        }
+
+        [HttpGet("exams")]
+        public async Task<IActionResult> GetAllExams()
+        {
+            var list = await _db.Exams
+                .Select(e => new { examId = e.ExamID, examName = e.ExamName, subjectId = e.SubjectID })
+                .ToListAsync();
+            return Ok(list);
+        }
+
+        [HttpGet("classes")]
+        public async Task<IActionResult> GetAllClasses()
+        {
+            var list = await _db.Classes
+                .Select(c => new { classId = c.ClassId, className = c.ClassName })
+                .ToListAsync();
+            return Ok(list);
+        }
+
+        // Main student report endpoint
         [HttpGet("student/{studentId}")]
         public async Task<IActionResult> GetStudentReport(Guid studentId)
         {
-            var student = await _db.Students.FirstOrDefaultAsync(s => s.StudentID == studentId);
-            if (student == null)
-                return NotFound("Student not found");
-
-            var classInfo = await _db.Classes.FirstOrDefaultAsync(c => c.ClassId == student.ClassID);
-
-            // Get Marks + Exam + Subject directly using navigation
-            var marks = await _db.Marks
-                .Where(m => m.StudentID == studentId)
-                .Include(m => m.Exam)
-                    .ThenInclude(e => e.Subject)
-                .ToListAsync();
-
-            var reportMarks = marks.Select(m => new
-            {
-                subjectName = m.Exam?.Subject?.SubjectName ?? "Subject Missing",
-                examName = m.Exam?.ExamName ?? "Exam Missing",
-                mark = m.Mark
-            }).ToList();
-
-            return Ok(new
-            {
-                studentName = student.StudentName,
-                className = classInfo?.ClassName ?? "-",
-                highest = marks.Any() ? marks.Max(m => m.Mark) : 0,
-                lowest = marks.Any() ? marks.Min(m => m.Mark) : 0,
-                average = marks.Any() ? marks.Average(m => m.Mark) : 0,
-                marks = reportMarks
-            });
-        }
-
-        // -------------------------------------------------------
-        // EXAM REPORT
-        // -------------------------------------------------------
-        [HttpGet("exam/{examId}")]
-        public async Task<IActionResult> GetExamReport(Guid examId)
-        {
-            var exam = await _db.Exams
-                .Include(e => e.Subject)
-                .FirstOrDefaultAsync(e => e.ExamID == examId);
-
-            if (exam == null)
-                return NotFound("Exam not found");
-
-            var marks = await _db.Marks.Where(m => m.ExamID == examId).ToListAsync();
-            var studentIds = marks.Select(m => m.StudentID).Distinct().ToList();
-
-            var students = await _db.Students
-                .Where(s => studentIds.Contains(s.StudentID))
-                .ToListAsync();
-
-            var reportStudents = marks.Select(m => new
-            {
-                studentName = students.FirstOrDefault(s => s.StudentID == m.StudentID)?.StudentName ?? "Unknown",
-                mark = m.Mark
-            }).ToList();
-
-            return Ok(new
-            {
-                examName = exam.ExamName,
-                subjectName = exam.Subject?.SubjectName ?? "Unknown Subject",
-                highest = marks.Any() ? marks.Max(m => m.Mark) : 0,
-                lowest = marks.Any() ? marks.Min(m => m.Mark) : 0,
-                average = marks.Any() ? marks.Average(m => m.Mark) : 0,
-                students = reportStudents
-            });
-        }
-
-        // -------------------------------------------------------
-        // CLASS PERFORMANCE REPORT
-        // -------------------------------------------------------
-        [HttpGet("class/{classId}/exam/{examId}")]
-        public async Task<IActionResult> GetClassPerformance(Guid classId, Guid examId)
-        {
-            var classInfo = await _db.Classes
-                .FirstOrDefaultAsync(c => c.ClassId == classId);
-
-            var exam = await _db.Exams
-                .Include(e => e.Subject)
-                .FirstOrDefaultAsync(e => e.ExamID == examId);
-
-            if (classInfo == null || exam == null)
-                return NotFound("Class or Exam not found");
-
-            var studentsInClass = await _db.Students
-                .Where(s => s.ClassID == classId)
-                .ToListAsync();
-
-            var studentIds = studentsInClass.Select(s => s.StudentID).ToList();
-
-            var marks = await _db.Marks
-                .Where(m => m.ExamID == examId && studentIds.Contains(m.StudentID))
-                .ToListAsync();
-
-            var reportData = marks.Select(m => new
-            {
-                studentName = studentsInClass.FirstOrDefault(s => s.StudentID == m.StudentID)?.StudentName ?? "Unknown",
-                mark = m.Mark
-            }).ToList();
-
-            double passPercent = 0;
-            if (marks.Count > 0)
-            {
-                var passedCount = marks.Count(m => m.Mark >= 40);
-                passPercent = (passedCount * 100.0) / marks.Count;
-            }
-
-            return Ok(new
-            {
-                className = classInfo.ClassName,
-                examName = exam.ExamName,
-                subjectName = exam.Subject?.SubjectName ?? "Unknown Subject",
-                highest = marks.Any() ? marks.Max(m => m.Mark) : 0,
-                lowest = marks.Any() ? marks.Min(m => m.Mark) : 0,
-                average = marks.Any() ? marks.Average(m => m.Mark) : 0,
-                passPercentage = passPercent,
-                students = reportData
-            });
+            var dto = await _reportService.GenerateStudentReportAsync(studentId);
+            if (dto == null) return NotFound("Student not found");
+            return Ok(dto);
         }
     }
 }
