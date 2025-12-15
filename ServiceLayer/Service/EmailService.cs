@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
+using ServiceLayer.DTO;
 using ServiceLayer.ServiceInterFace;
 using System.Net;
 using System.Net.Mail;
-using Microsoft.Extensions.Configuration;
-using ServiceLayer.DTO;
-using ServiceLayer.ServiceInterFace;
 
 namespace ServiceLayer.Service
 {

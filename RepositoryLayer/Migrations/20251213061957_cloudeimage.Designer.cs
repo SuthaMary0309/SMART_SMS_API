@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RepositoryLayer.AppDbContext;
 
@@ -11,9 +12,11 @@ using RepositoryLayer.AppDbContext;
 namespace RepositoryLayer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251213061957_cloudeimage")]
+    partial class cloudeimage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,10 +39,6 @@ namespace RepositoryLayer.Migrations
 
                     b.Property<DateTime>("Day")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("StudentId")
                         .HasColumnType("uniqueidentifier");
@@ -122,8 +121,6 @@ namespace RepositoryLayer.Migrations
 
                     b.HasIndex("ExamID");
 
-                    b.HasIndex("StudentID");
-
                     b.ToTable("Marks");
                 });
 
@@ -204,7 +201,7 @@ namespace RepositoryLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("ClassID")
+                    b.Property<Guid>("ClassID")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Email")
@@ -225,12 +222,10 @@ namespace RepositoryLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("UserID")
+                    b.Property<Guid>("UserID")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("StudentID");
-
-                    b.HasIndex("ClassID");
 
                     b.ToTable("Students");
                 });
@@ -460,7 +455,7 @@ namespace RepositoryLayer.Migrations
             modelBuilder.Entity("RepositoryLayer.Entity.Exam", b =>
                 {
                     b.HasOne("RepositoryLayer.Entity.Subject", "Subject")
-                        .WithMany("Exams")
+                        .WithMany()
                         .HasForeignKey("SubjectID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -476,39 +471,7 @@ namespace RepositoryLayer.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("RepositoryLayer.Entity.Student", "Student")
-                        .WithMany("Marks")
-                        .HasForeignKey("StudentID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Exam");
-
-                    b.Navigation("Student");
-                });
-
-            modelBuilder.Entity("RepositoryLayer.Entity.Student", b =>
-                {
-                    b.HasOne("RepositoryLayer.Entity.Class", "Class")
-                        .WithMany("Students")
-                        .HasForeignKey("ClassID");
-
-                    b.Navigation("Class");
-                });
-
-            modelBuilder.Entity("RepositoryLayer.Entity.Class", b =>
-                {
-                    b.Navigation("Students");
-                });
-
-            modelBuilder.Entity("RepositoryLayer.Entity.Student", b =>
-                {
-                    b.Navigation("Marks");
-                });
-
-            modelBuilder.Entity("RepositoryLayer.Entity.Subject", b =>
-                {
-                    b.Navigation("Exams");
                 });
 #pragma warning restore 612, 618
         }

@@ -38,6 +38,12 @@ namespace RepositoryLayer.Repository
                                    .FirstOrDefaultAsync(s => s.StudentID == id);
         }
 
+
+        public async Task SaveChangesAsync()
+        {
+            await _dbContext.SaveChangesAsync();
+        }
+
         public async Task<Student?> UpdateStudent(Student student)
         {
             var existing = await _dbContext.Students.FindAsync(student.StudentID);
@@ -62,6 +68,19 @@ namespace RepositoryLayer.Repository
             _dbContext.Students.Remove(existing);
             await _dbContext.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<Student?> UpdateProfileImage(Guid id, string profileUrl, string publicId)
+        {
+            var student = await GetStudentById(id);
+            if (student == null) return null;
+
+            student.ProfileURL = profileUrl;
+            student.ProfileImagePublicId = publicId;
+
+            _dbContext.Students.Update(student);
+            await _dbContext.SaveChangesAsync();
+            return student;
         }
     }
 }

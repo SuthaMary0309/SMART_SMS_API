@@ -11,7 +11,7 @@ namespace RepositoryLayer.Entity
         public string StudentName { get; set; } = string.Empty;
 
         [Required]
-        public string PhoneNo { get; set; } = string.Empty;  // MUST BE STRING
+        public string PhoneNo { get; set; } = string.Empty; 
 
         [Required]
         public string Address { get; set; } = string.Empty;
@@ -24,6 +24,8 @@ namespace RepositoryLayer.Entity
         public Guid? ClassID { get; set; }
         public Class? Class { get; set; }
         public ICollection<Marks> Marks { get; set; } = new List<Marks>();
+        public string? ProfileURL { get; set; }
+        public string? ProfileImagePublicId { get; set; }
 
     }
 }

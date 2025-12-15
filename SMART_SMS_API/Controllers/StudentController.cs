@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using ServiceLayer.DTO.RequestDTO;
 using ServiceLayer.ServiceInterFace;
 using System;
@@ -34,9 +35,36 @@ namespace SMART_SMS_API.Controllers
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> AddStudent([FromBody] StudentRequestDTO request)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> AddStudent([FromForm] AddStudentFormRequest formRequest)
         {
-            return Ok(await _studentService.AddStudentAsync(request));
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var request = new StudentRequestDTO
+                {
+                    StudentName = formRequest.StudentName,
+                    PhoneNo = formRequest.PhoneNo,
+                    Address = formRequest.Address,
+                    Email = formRequest.Email,
+                    ClassID = formRequest.ClassID
+                };
+
+                var student = await _studentService.AddStudentAsync(request, formRequest.ProfileImage);
+                return Ok(student);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while adding the student", error = ex.Message });
+            }
         }
 
         [HttpPut("update/{id}")]
@@ -58,5 +86,55 @@ namespace SMART_SMS_API.Controllers
 
             return Ok(new { message = "Student deleted successfully" });
         }
+
+        [HttpGet("get/{id}/profile-image")]
+        public async Task<IActionResult> GetProfileImage(Guid id)
+        {
+            var imageUrl = await _studentService.GetProfileImageUrlAsync(id);
+            if (imageUrl == null)
+            {
+                var student = await _studentService.GetStudentByIdAsync(id);
+                if (student == null)
+                    return NotFound(new { message = "Student not found" });
+                
+                return NotFound(new { message = "Profile image not found", imageUrl = (string?)null });
+            }
+
+            return Ok(new { imageUrl });
+        }
+
+        [HttpPut("update/{id}/profile-image")]
+        [Consumes("multipart/form-data")]
+        [ProducesResponseType(typeof(object), 200)]
+        public async Task<IActionResult> UpdateProfileImage(Guid id, IFormFile profileImage)
+        {
+            if (profileImage == null || profileImage.Length == 0)
+            {
+                return BadRequest(new { message = "Profile image is required" });
+            }
+
+            try
+            {
+                var updated = await _studentService.UpdateProfileImageWithFileAsync(id, profileImage);
+                if (updated == null)
+                    return NotFound(new { message = "Student not found" });
+
+                return Ok(new 
+                { 
+                    message = "Profile image updated successfully",
+                    imageUrl = updated.ProfileURL,
+                    student = updated
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while updating the profile image", error = ex.Message });
+            }
+        }
+
     }
 }
